@@ -86,6 +86,10 @@ prisma/migrations/dev/
 .firebase/
 .amplify/
 
+# Claude Code
+.claude/
+**/.claude/
+
 # Editors / IDE
 .vscode/*
 !.vscode/settings.json
