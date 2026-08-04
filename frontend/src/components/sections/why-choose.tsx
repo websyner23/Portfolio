@@ -25,7 +25,7 @@ export function WhyChoose() {
               transition={{ duration: 0.4, delay: i * 0.04 }}
               className="group relative bg-card p-7 md:p-9 hover:bg-secondary/40 transition-colors"
             >
-              <div className="text-xs font-mono text-brand">/ {String(i + 1).padStart(2, "0")}</div>
+              <div className="text-xs font-mono text-brand-ink">/ {String(i + 1).padStart(2, "0")}</div>
               <h3 className="mt-4 text-lg md:text-xl font-semibold font-display">{w.title}</h3>
               <p className="mt-3 text-sm md:text-[15px] text-muted-foreground leading-relaxed">{w.description}</p>
               <ArrowRight className="absolute right-7 bottom-7 size-4 text-muted-foreground translate-x-0 opacity-0 transition-all group-hover:translate-x-1 group-hover:opacity-100" />

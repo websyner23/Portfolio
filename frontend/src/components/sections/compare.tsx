@@ -33,7 +33,7 @@ export function Compare() {
                   {row.values.map((v, i) => (
                     <td key={i} className="p-4 md:p-6 text-foreground/85">
                       {v === "✓" ? (
-                        <Check className="size-4 text-brand" />
+                        <Check className="size-4 text-brand-ink" />
                       ) : v === "—" ? (
                         <Minus className="size-4 text-muted-foreground/50" />
                       ) : (

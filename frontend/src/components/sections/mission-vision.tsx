@@ -16,7 +16,7 @@ export function MissionVision() {
               title: "Make excellent digital craft accessible to ambitious teams.",
               body:
                 "Most companies don't need a 40-person agency. They need a small, senior team that takes their goals seriously, ships on time, and leaves things in better shape than they found them. That's the gap WebSyner exists to fill.",
-              grad: "from-brand/20 via-fuchsia-500/10 to-transparent",
+              grad: "from-brand/20 via-brand/5 to-transparent",
             },
             {
               icon: Telescope,
@@ -24,7 +24,7 @@ export function MissionVision() {
               title: "A world where shipping great software feels like a relief, not a risk.",
               body:
                 "We want every founder and team we work with to look back at a launch and say 'that was easier than I expected.' We're building toward a studio reputation where the answer to 'who should we hire?' is obvious.",
-              grad: "from-lime/25 via-emerald-400/10 to-transparent",
+              grad: "from-navy/20 via-navy/6 to-transparent",
             },
           ].map(({ icon: Icon, eyebrow, title, body, grad }, i) => (
             <motion.div
@@ -36,7 +36,7 @@ export function MissionVision() {
               className={`relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br ${grad} bg-card p-8 md:p-12`}
             >
               <div className="flex size-14 items-center justify-center rounded-2xl bg-background border border-border">
-                <Icon className="size-6 text-brand" />
+                <Icon className="size-6 text-brand-ink" />
               </div>
               <div className="mt-6 text-xs font-mono uppercase tracking-wider text-muted-foreground">
                 {eyebrow}

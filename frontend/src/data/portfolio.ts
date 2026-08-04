@@ -27,7 +27,7 @@ export const portfolio: PortfolioItem[] = [
     ],
     tags: ["Next.js", "Sanity", "Webflow → Next"],
     year: 2025,
-    gradient: "from-indigo-500/30 via-fuchsia-500/20 to-cyan-400/30",
+    gradient: "from-brand/30 via-brand/12 to-navy/25",
   },
   {
     slug: "atlas-health-brand",
@@ -43,7 +43,7 @@ export const portfolio: PortfolioItem[] = [
     ],
     tags: ["Brand system", "Naming", "Launch site"],
     year: 2025,
-    gradient: "from-emerald-400/30 via-teal-400/20 to-sky-400/30",
+    gradient: "from-brand/28 via-navy/12 to-navy/30",
   },
   {
     slug: "lumen-studio-design-system",
@@ -59,7 +59,7 @@ export const portfolio: PortfolioItem[] = [
     ],
     tags: ["Design system", "Tailwind", "Storybook"],
     year: 2024,
-    gradient: "from-rose-400/30 via-orange-300/20 to-yellow-400/30",
+    gradient: "from-navy/30 via-navy/10 to-brand/25",
   },
   {
     slug: "cobalt-outdoors-seo",
@@ -75,7 +75,7 @@ export const portfolio: PortfolioItem[] = [
     ],
     tags: ["Technical SEO", "Content", "Digital PR"],
     year: 2024,
-    gradient: "from-amber-400/30 via-lime-300/20 to-emerald-400/30",
+    gradient: "from-navy/25 via-brand/15 to-brand/30",
   },
   {
     slug: "beacon-ops-tool",
@@ -91,7 +91,7 @@ export const portfolio: PortfolioItem[] = [
     ],
     tags: ["Internal tool", "Postgres", "Roles & audit"],
     year: 2025,
-    gradient: "from-blue-500/30 via-indigo-500/20 to-violet-500/30",
+    gradient: "from-navy/30 via-navy/12 to-brand/22",
   },
   {
     slug: "foreground-ai-saas",
@@ -107,7 +107,7 @@ export const portfolio: PortfolioItem[] = [
     ],
     tags: ["Product", "Stripe", "Multi-tenant"],
     year: 2026,
-    gradient: "from-fuchsia-500/30 via-purple-500/20 to-indigo-500/30",
+    gradient: "from-brand/32 via-brand/12 to-navy/22",
   },
   {
     slug: "verdant-tea-ecom",
@@ -123,7 +123,7 @@ export const portfolio: PortfolioItem[] = [
     ],
     tags: ["Shopify", "Hydrogen", "Subscriptions"],
     year: 2025,
-    gradient: "from-green-400/30 via-emerald-300/20 to-teal-400/30",
+    gradient: "from-brand/25 via-navy/10 to-brand/30",
   },
   {
     slug: "harbor-fintech-saas",
@@ -139,7 +139,7 @@ export const portfolio: PortfolioItem[] = [
     ],
     tags: ["Product redesign", "Dashboard", "Enterprise"],
     year: 2025,
-    gradient: "from-cyan-400/30 via-sky-400/20 to-blue-500/30",
+    gradient: "from-navy/28 via-brand/15 to-brand/25",
   },
   {
     slug: "ember-restaurant-brand",
@@ -155,7 +155,7 @@ export const portfolio: PortfolioItem[] = [
     ],
     tags: ["Hospitality", "Identity", "Print"],
     year: 2024,
-    gradient: "from-orange-500/30 via-red-400/20 to-rose-500/30",
+    gradient: "from-brand/30 via-brand/10 to-navy/28",
   },
 ];
 

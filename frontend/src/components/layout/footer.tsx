@@ -57,7 +57,7 @@ export function Footer() {
             <div className="mt-8 flex flex-col gap-2 text-sm">
               <a
                 href={`mailto:${site.email}`}
-                className="inline-flex items-center gap-2 hover:text-brand transition-colors"
+                className="inline-flex items-center gap-2 hover:text-brand-ink transition-colors"
               >
                 <Mail className="size-4" />
                 {site.email}
@@ -70,7 +70,7 @@ export function Footer() {
                   key={label}
                   href={href}
                   aria-label={label}
-                  className="inline-flex size-10 items-center justify-center rounded-full border border-border bg-background hover:border-brand hover:text-brand transition-colors"
+                  className="inline-flex size-10 items-center justify-center rounded-full border border-border bg-background hover:border-brand hover:text-brand-ink transition-colors"
                 >
                   <Icon className="size-4" />
                 </a>
@@ -89,7 +89,7 @@ export function Footer() {
                     <li key={`${group.title}-${l.label}`}>
                       <Link
                         href={l.href}
-                        className="text-sm text-foreground/80 hover:text-brand transition-colors"
+                        className="text-sm text-foreground/80 hover:text-brand-ink transition-colors"
                       >
                         {l.label}
                       </Link>
@@ -107,7 +107,7 @@ export function Footer() {
           </p>
           <Link
             href="/contact"
-            className="inline-flex items-center gap-1.5 text-sm font-medium hover:text-brand transition-colors"
+            className="inline-flex items-center gap-1.5 text-sm font-medium hover:text-brand-ink transition-colors"
           >
             Have a project in mind? <ArrowUpRight className="size-4" />
           </Link>

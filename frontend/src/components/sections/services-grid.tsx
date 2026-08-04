@@ -32,7 +32,7 @@ export function ServicesGrid({ id = "services" }: { id?: string }) {
                 )}
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex size-12 items-center justify-center rounded-xl bg-brand/10 text-brand">
+                  <div className="flex size-12 items-center justify-center rounded-xl bg-brand/10 text-brand-ink">
                     <Icon className="size-6" />
                   </div>
                   <span className="text-xs font-mono text-muted-foreground">
@@ -49,7 +49,7 @@ export function ServicesGrid({ id = "services" }: { id?: string }) {
                   </span>
                   <Link
                     href={`/services/${s.slug}`}
-                    className="inline-flex items-center gap-1 text-sm font-medium text-brand opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="inline-flex items-center gap-1 text-sm font-medium text-brand-ink opacity-0 group-hover:opacity-100 transition-opacity"
                   >
                     Details <ArrowUpRight className="size-3.5" />
                   </Link>

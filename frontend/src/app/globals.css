@@ -22,7 +22,9 @@
   --color-ring: var(--ring);
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
-  --color-lime: var(--lime);
+  --color-brand-ink: var(--brand-ink);
+  --color-navy: var(--navy);
+  --color-navy-foreground: var(--navy-foreground);
   --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-display), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
@@ -33,52 +35,72 @@
   --radius-2xl: 1.5rem;
 }
 
+/*
+  Brand palette — taken from the WebSyner mark
+  --------------------------------------------------------------
+  Primary    #0fcda1  teal   — actions, highlights, brand fills
+  Secondary  #1e2d40  navy   — structure, dark surfaces, ink
+
+  Contrast rules baked into the tokens:
+  - #0fcda1 only ever carries navy ink (6.8:1), never white.
+  - Teal text on light surfaces uses --brand-ink (5.1:1), not --brand,
+    which is a 2:1 fill colour and unreadable as type.
+  - Neutrals are navy-tinted so greys read as part of the brand.
+*/
 :root {
   --background: #ffffff;
-  --foreground: #0a0a0b;
+  --foreground: #10202f;
   --card: #ffffff;
-  --card-foreground: #0a0a0b;
+  --card-foreground: #10202f;
   --popover: #ffffff;
-  --popover-foreground: #0a0a0b;
-  --primary: #1a1a1f;
-  --primary-foreground: #fafafa;
-  --secondary: #f4f4f5;
-  --secondary-foreground: #1a1a1f;
-  --muted: #f4f4f5;
-  --muted-foreground: #6b7280;
-  --accent: #f4f4f5;
-  --accent-foreground: #1a1a1f;
-  --destructive: #ef4444;
-  --destructive-foreground: #fafafa;
-  --border: #e5e7eb;
-  --input: #e5e7eb;
-  --ring: #4f46e5;
-  --brand: #4f46e5;
-  --brand-foreground: #ffffff;
-  --lime: #a3e635;
+  --popover-foreground: #10202f;
+  --primary: #1e2d40;
+  --primary-foreground: #ffffff;
+  --secondary: #eef2f6;
+  --secondary-foreground: #1e2d40;
+  --muted: #f1f4f8;
+  --muted-foreground: #5b6b7f;
+  --accent: #eef2f6;
+  --accent-foreground: #1e2d40;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #dde3ea;
+  --input: #dde3ea;
+  --ring: #0fcda1;
+  --brand: #0fcda1;
+  --brand-foreground: #1e2d40;
+  --brand-ink: #0a7d63;
+  --navy: #1e2d40;
+  --navy-foreground: #ffffff;
+  --logo-ink: #1e2d40;
 }
 
 .dark {
-  --background: #08080b;
-  --foreground: #fafafa;
-  --card: #0e0e12;
-  --card-foreground: #fafafa;
-  --popover: #0e0e12;
-  --popover-foreground: #fafafa;
-  --primary: #fafafa;
-  --primary-foreground: #0a0a0b;
-  --secondary: #1a1a1f;
-  --secondary-foreground: #fafafa;
-  --muted: #15151a;
-  --muted-foreground: #9ca3af;
-  --accent: #1a1a1f;
-  --accent-foreground: #fafafa;
-  --border: #1f1f25;
-  --input: #1f1f25;
-  --ring: #818cf8;
-  --brand: #818cf8;
-  --brand-foreground: #08080b;
-  --lime: #bef264;
+  --background: #0d151f;
+  --foreground: #e9eff5;
+  --card: #16202e;
+  --card-foreground: #e9eff5;
+  --popover: #16202e;
+  --popover-foreground: #e9eff5;
+  --primary: #f2f7fb;
+  --primary-foreground: #1e2d40;
+  --secondary: #1e2d40;
+  --secondary-foreground: #e9eff5;
+  --muted: #172231;
+  --muted-foreground: #9aabbf;
+  --accent: #1e2d40;
+  --accent-foreground: #e9eff5;
+  --destructive: #f05252;
+  --destructive-foreground: #0d151f;
+  --border: #263548;
+  --input: #263548;
+  --ring: #0fcda1;
+  --brand: #0fcda1;
+  --brand-foreground: #1e2d40;
+  --brand-ink: #46dfba;
+  --navy: #1e2d40;
+  --navy-foreground: #ffffff;
+  --logo-ink: #e9eff5;
 }
 
 * {

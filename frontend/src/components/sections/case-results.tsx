@@ -14,7 +14,7 @@ const cases = [
     type: "Web Design",
     body: "Replaced a slow WordPress build with a Next.js front-end and a CMS the marketing team owns end-to-end.",
     slug: "northwind-logistics",
-    grad: "from-indigo-500/25 via-fuchsia-500/15 to-cyan-400/25",
+    grad: "from-brand/28 via-brand/10 to-navy/25",
   },
   {
     metric: "+312%",
@@ -23,7 +23,7 @@ const cases = [
     type: "SEO Program",
     body: "Built topical authority around camping and overlanding. Organic now drives more than a third of revenue.",
     slug: "cobalt-outdoors-seo",
-    grad: "from-amber-400/25 via-lime-300/15 to-emerald-400/25",
+    grad: "from-navy/28 via-brand/12 to-brand/28",
   },
   {
     metric: "14 wks",
@@ -32,7 +32,7 @@ const cases = [
     type: "SaaS Product",
     body: "End-to-end product partnership for an AI annotation tool. Brand, app, billing, and marketing site shipped.",
     slug: "foreground-ai-saas",
-    grad: "from-fuchsia-500/25 via-purple-500/15 to-indigo-500/25",
+    grad: "from-brand/22 via-navy/15 to-navy/28",
   },
 ];
 
@@ -59,7 +59,7 @@ export function CaseResults() {
               )}
             >
               <div className="absolute inset-0 bg-dot opacity-30 -z-10" />
-              <div className="flex items-center gap-2 text-xs font-medium text-brand">
+              <div className="flex items-center gap-2 text-xs font-medium text-brand-ink">
                 <TrendingUp className="size-3.5" />
                 {c.type}
               </div>
@@ -75,7 +75,7 @@ export function CaseResults() {
               </div>
               <Link
                 href={`/portfolio`}
-                className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-brand opacity-0 group-hover:opacity-100 transition-opacity"
+                className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-brand-ink opacity-0 group-hover:opacity-100 transition-opacity"
               >
                 Read case study
                 <ArrowUpRight className="size-3.5" />

@@ -48,7 +48,7 @@ export function OurApproach() {
                 transition={{ duration: 0.4, delay: i * 0.05 }}
                 className="rounded-2xl border border-border bg-card p-7 md:p-8 flex gap-5"
               >
-                <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand">
+                <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand-ink">
                   <Icon className="size-5" />
                 </div>
                 <div>

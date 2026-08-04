@@ -45,7 +45,7 @@ export function IncludedEverywhere() {
                 transition={{ duration: 0.35, delay: i * 0.04 }}
                 className="bg-card p-6 md:p-7"
               >
-                <div className="flex size-10 items-center justify-center rounded-lg bg-brand/10 text-brand">
+                <div className="flex size-10 items-center justify-center rounded-lg bg-brand/10 text-brand-ink">
                   <Icon className="size-5" />
                 </div>
                 <h3 className="mt-4 text-base font-semibold font-display">{it.title}</h3>

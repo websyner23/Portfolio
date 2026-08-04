@@ -14,7 +14,7 @@ export function CustomQuote() {
           <div className="relative grid gap-8 md:grid-cols-12 items-center">
             <div className="md:col-span-8">
               <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background/60 px-3 py-1 text-xs font-medium">
-                <MessageSquareQuote className="size-3.5 text-brand" />
+                <MessageSquareQuote className="size-3.5 text-brand-ink" />
                 Need something custom?
               </div>
               <h3 className="mt-4 text-2xl md:text-3xl font-semibold font-display tracking-tight">

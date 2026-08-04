@@ -95,9 +95,9 @@ export function Schedule() {
 
         <div className="mx-auto max-w-5xl rounded-3xl border border-border bg-card overflow-hidden">
           <div className="grid md:grid-cols-12">
-            <div className="md:col-span-4 border-b md:border-b-0 md:border-r border-border bg-gradient-to-br from-brand/8 via-card to-lime/8 p-6 md:p-8">
+            <div className="md:col-span-4 border-b md:border-b-0 md:border-r border-border bg-gradient-to-br from-brand/8 via-card to-navy/6 p-6 md:p-8">
               <div className="flex size-12 items-center justify-center rounded-xl bg-background border border-border">
-                <Calendar className="size-5 text-brand" />
+                <Calendar className="size-5 text-brand-ink" />
               </div>
               <h3 className="mt-5 text-xl font-semibold font-display">30-min discovery call</h3>
               <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
@@ -111,7 +111,7 @@ export function Schedule() {
                   "Next steps and pricing direction",
                 ].map((b) => (
                   <li key={b} className="flex items-start gap-2">
-                    <Check className="mt-0.5 size-4 shrink-0 text-brand" />
+                    <Check className="mt-0.5 size-4 shrink-0 text-brand-ink" />
                     <span className="text-foreground/85">{b}</span>
                   </li>
                 ))}
@@ -135,14 +135,14 @@ export function Schedule() {
                   <button
                     onClick={goPrev}
                     aria-label="Previous month"
-                    className="inline-flex size-9 items-center justify-center rounded-full border border-border hover:border-brand hover:text-brand transition-colors"
+                    className="inline-flex size-9 items-center justify-center rounded-full border border-border hover:border-brand hover:text-brand-ink transition-colors"
                   >
                     <ChevronLeft className="size-4" />
                   </button>
                   <button
                     onClick={goNext}
                     aria-label="Next month"
-                    className="inline-flex size-9 items-center justify-center rounded-full border border-border hover:border-brand hover:text-brand transition-colors"
+                    className="inline-flex size-9 items-center justify-center rounded-full border border-border hover:border-brand hover:text-brand-ink transition-colors"
                   >
                     <ChevronRight className="size-4" />
                   </button>
@@ -218,7 +218,7 @@ export function Schedule() {
                     className={cn(
                       "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
                       tz === z
-                        ? "border-brand bg-brand/10 text-brand"
+                        ? "border-brand bg-brand/10 text-brand-ink"
                         : "border-border bg-background text-foreground/80 hover:border-foreground/30"
                     )}
                   >
@@ -252,7 +252,7 @@ export function Schedule() {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
-                    className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-400"
+                    className="mt-4 rounded-xl border border-brand/30 bg-brand/10 px-4 py-3 text-sm text-brand-ink"
                   >
                     Slot reserved. You&apos;ll get a confirmation with a calendar invite within 5 minutes.
                   </motion.div>

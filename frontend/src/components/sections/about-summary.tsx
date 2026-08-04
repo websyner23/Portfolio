@@ -30,7 +30,7 @@ export function AboutSummary() {
               align="left"
               title={
                 <>
-                  A boutique studio that <span className="text-brand">treats your business like ours</span>.
+                  A boutique studio that <span className="text-brand-ink">treats your business like ours</span>.
                 </>
               }
               description="We're a small group of senior designers, engineers, and strategists working with founders and growth teams who want their digital presence to actually move the business forward. We turn down work that isn't a fit so the work we take stays excellent."
@@ -40,7 +40,7 @@ export function AboutSummary() {
             <ul className="grid sm:grid-cols-2 gap-3 mb-10">
               {points.map((p) => (
                 <li key={p} className="flex items-start gap-3 text-sm">
-                  <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-brand" />
+                  <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-brand-ink" />
                   <span className="text-foreground/85">{p}</span>
                 </li>
               ))}
@@ -63,10 +63,10 @@ export function AboutSummary() {
           >
             <div className="grid grid-cols-2 gap-4">
               {[
-                { v: "12+", l: "Years combined craft", grad: "from-brand/20 to-fuchsia-500/10" },
-                { v: "120+", l: "Projects shipped", grad: "from-lime/20 to-emerald-400/10" },
-                { v: "38", l: "Countries served", grad: "from-cyan-400/20 to-sky-400/10" },
-                { v: "92%", l: "Client retention", grad: "from-amber-400/20 to-orange-400/10" },
+                { v: "12+", l: "Years combined craft", grad: "from-brand/20 to-brand/5" },
+                { v: "120+", l: "Projects shipped", grad: "from-navy/15 to-navy/5" },
+                { v: "38", l: "Countries served", grad: "from-navy/15 to-navy/5" },
+                { v: "92%", l: "Client retention", grad: "from-brand/15 to-navy/8" },
               ].map((s) => (
                 <div
                   key={s.l}

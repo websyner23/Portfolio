@@ -30,12 +30,12 @@ export function PortfolioServicesLink() {
                   href={`/services/${s.slug}`}
                   className="group flex h-full flex-col rounded-2xl border border-border bg-card p-5 hover:border-brand/40 transition-colors"
                 >
-                  <div className="flex size-10 items-center justify-center rounded-lg bg-brand/10 text-brand">
+                  <div className="flex size-10 items-center justify-center rounded-lg bg-brand/10 text-brand-ink">
                     <Icon className="size-5" />
                   </div>
                   <h3 className="mt-4 text-sm font-semibold font-display">{s.title}</h3>
                   <p className="mt-1 text-xs text-muted-foreground line-clamp-2 flex-1">{s.short}</p>
-                  <div className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-brand">
+                  <div className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-brand-ink">
                     Details
                     <ArrowUpRight className="size-3 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                   </div>

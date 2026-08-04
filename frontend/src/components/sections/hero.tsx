@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState } from "react";
-import { ArrowUpRight, Sparkles, Star, ShieldCheck, Clock, BadgeCheck, Send, CheckCircle2 } from "lucide-react";
+import { ArrowUpRight, Sparkles, Star, Clock, BadgeCheck, Send, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/section";
 import { Input } from "@/components/ui/input";
@@ -26,7 +26,7 @@ export function Hero() {
     <section className="relative overflow-hidden pt-12 pb-24 md:pt-16 md:pb-28">
       <div className="pointer-events-none absolute inset-0 bg-grid mask-fade-edges opacity-50" aria-hidden />
       <div className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 size-[680px] rounded-full bg-brand/10 blur-3xl" aria-hidden />
-      <div className="pointer-events-none absolute -bottom-40 right-0 size-[420px] rounded-full bg-lime/15 blur-3xl" aria-hidden />
+      <div className="pointer-events-none absolute -bottom-40 right-0 size-[420px] rounded-full bg-navy/8 blur-3xl" aria-hidden />
 
       <Container className="relative">
         <div className="grid gap-10 lg:grid-cols-12 lg:gap-12 items-center">
@@ -38,8 +38,8 @@ export function Hero() {
           >
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-background/60 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
               <span className="relative flex size-2">
-                <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
-                <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
+                <span className="absolute inline-flex h-full w-full rounded-full bg-brand opacity-75 animate-ping" />
+                <span className="relative inline-flex size-2 rounded-full bg-brand" />
               </span>
               Booking projects starting May 2026
             </div>
@@ -47,7 +47,7 @@ export function Hero() {
             <h1 className="text-balance text-5xl font-semibold tracking-tight md:text-6xl lg:text-7xl font-display leading-[1.05]">
               Smart sites.{" "}
               <span className="relative whitespace-nowrap">
-                <span className="bg-gradient-to-br from-brand to-lime bg-clip-text text-transparent">
+                <span className="bg-gradient-to-br from-brand-ink to-foreground bg-clip-text text-transparent">
                   Solid craft.
                 </span>
               </span>
@@ -69,27 +69,6 @@ export function Hero() {
               <Button asChild size="xl" variant="outline">
                 <Link href="/portfolio">See our work</Link>
               </Button>
-            </div>
-
-            <div className="mt-10 grid grid-cols-3 gap-4 max-w-md">
-              {[
-                { icon: Star, label: "5.0 Rated", sub: "60+ clients" },
-                { icon: ShieldCheck, label: "No Spam", sub: "Ever" },
-                { icon: Clock, label: "24h Reply", sub: "Guaranteed" },
-              ].map((t) => {
-                const Icon = t.icon;
-                return (
-                  <div key={t.label} className="flex items-center gap-2.5">
-                    <div className="flex size-9 items-center justify-center rounded-full bg-brand/10 text-brand">
-                      <Icon className="size-4" />
-                    </div>
-                    <div className="text-xs">
-                      <div className="font-semibold">{t.label}</div>
-                      <div className="text-muted-foreground">{t.sub}</div>
-                    </div>
-                  </div>
-                );
-              })}
             </div>
           </motion.div>
 
@@ -130,7 +109,7 @@ function QuoteForm() {
 
   return (
     <div className="relative rounded-3xl border border-border bg-card p-6 md:p-7 shadow-xl shadow-foreground/5">
-      <div className="absolute -top-3 left-6 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-brand to-lime px-3 py-1 text-xs font-semibold text-white shadow-md">
+      <div className="absolute -top-3 left-6 inline-flex items-center gap-1.5 rounded-full bg-brand px-3 py-1 text-xs font-semibold text-brand-foreground shadow-md shadow-brand/30">
         <Sparkles className="size-3.5" />
         Free 30-min consultation
       </div>
@@ -142,7 +121,7 @@ function QuoteForm() {
 
       {submitted ? (
         <div className="flex flex-col items-center justify-center text-center py-10">
-          <div className="flex size-14 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-600">
+          <div className="flex size-14 items-center justify-center rounded-full bg-brand/15 text-brand-ink">
             <CheckCircle2 className="size-7" />
           </div>
           <h4 className="mt-4 text-lg font-semibold font-display">Thanks — we&apos;ll be in touch.</h4>
@@ -182,15 +161,15 @@ function QuoteForm() {
 
           <div className="flex items-center justify-center gap-3 pt-2 text-[11px] text-muted-foreground">
             <span className="inline-flex items-center gap-1">
-              <BadgeCheck className="size-3 text-brand" /> No spam
+              <BadgeCheck className="size-3 text-brand-ink" /> No spam
             </span>
             <span>·</span>
             <span className="inline-flex items-center gap-1">
-              <Clock className="size-3 text-brand" /> 24h reply
+              <Clock className="size-3 text-brand-ink" /> 24h reply
             </span>
             <span>·</span>
             <span className="inline-flex items-center gap-1">
-              <Star className="size-3 fill-amber-400 text-amber-400" /> 5.0 rating
+              <Star className="size-3 fill-brand-ink text-brand-ink" /> 5.0 rating
             </span>
           </div>
         </form>

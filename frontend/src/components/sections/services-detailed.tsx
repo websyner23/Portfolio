@@ -25,7 +25,7 @@ export function ServicesDetailed() {
               >
                 <div className={`md:col-span-7 ${reverse ? "md:order-2" : ""}`}>
                   <div className="flex items-center gap-3">
-                    <div className="flex size-12 items-center justify-center rounded-xl bg-brand/10 text-brand">
+                    <div className="flex size-12 items-center justify-center rounded-xl bg-brand/10 text-brand-ink">
                       <Icon className="size-5" />
                     </div>
                     <span className="text-xs font-mono text-muted-foreground">
@@ -39,7 +39,7 @@ export function ServicesDetailed() {
                   <ul className="mt-6 grid sm:grid-cols-2 gap-2.5">
                     {s.outcomes.map((o) => (
                       <li key={o} className="flex items-start gap-2 text-sm">
-                        <Check className="mt-0.5 size-4 shrink-0 text-brand" />
+                        <Check className="mt-0.5 size-4 shrink-0 text-brand-ink" />
                         <span className="text-foreground/85">{o}</span>
                       </li>
                     ))}
@@ -51,7 +51,7 @@ export function ServicesDetailed() {
                     <span className="text-muted-foreground">{s.timeline}</span>
                     <Link
                       href={`/services/${s.slug}`}
-                      className="ml-auto inline-flex items-center gap-1 font-medium text-brand hover:underline"
+                      className="ml-auto inline-flex items-center gap-1 font-medium text-brand-ink hover:underline"
                     >
                       Service details <ArrowUpRight className="size-4" />
                     </Link>
@@ -59,7 +59,7 @@ export function ServicesDetailed() {
                 </div>
 
                 <div className={`md:col-span-5 ${reverse ? "md:order-1" : ""}`}>
-                  <div className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-border bg-gradient-to-br from-brand/15 via-card to-lime/15 flex items-center justify-center">
+                  <div className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-border bg-gradient-to-br from-brand/15 via-card to-navy/12 flex items-center justify-center">
                     <div className="absolute inset-0 bg-dot opacity-30" />
                     <div className="relative grid grid-cols-2 gap-3 p-6 max-w-xs">
                       {s.techHighlights.slice(0, 4).map((t) => (

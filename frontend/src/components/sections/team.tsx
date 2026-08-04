@@ -25,7 +25,7 @@ export function Team() {
               transition={{ duration: 0.4, delay: i * 0.05 }}
               className="group rounded-2xl border border-border bg-card p-6 hover:border-brand/40 transition-colors"
             >
-              <div className="relative aspect-[4/5] rounded-xl overflow-hidden mb-5 bg-gradient-to-br from-brand/15 via-secondary to-lime/15 flex items-center justify-center">
+              <div className="relative aspect-[4/5] rounded-xl overflow-hidden mb-5 bg-gradient-to-br from-brand/15 via-secondary to-navy/12 flex items-center justify-center">
                 <div className="text-5xl md:text-6xl font-semibold font-display text-foreground/40">
                   {m.initials}
                 </div>
@@ -34,13 +34,13 @@ export function Team() {
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <h3 className="text-lg font-semibold font-display">{m.name}</h3>
-                  <p className="text-sm text-brand">{m.role}</p>
+                  <p className="text-sm text-brand-ink">{m.role}</p>
                 </div>
                 {m.linkedin ? (
                   <a
                     href={m.linkedin}
                     aria-label={`${m.name} on LinkedIn`}
-                    className="inline-flex size-8 items-center justify-center rounded-full border border-border hover:border-brand hover:text-brand transition-colors"
+                    className="inline-flex size-8 items-center justify-center rounded-full border border-border hover:border-brand hover:text-brand-ink transition-colors"
                   >
                     <LinkedinIcon className="size-3.5" />
                   </a>

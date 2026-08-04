@@ -25,7 +25,7 @@ export default function ProcessPage() {
         title={
           <>
             A process that feels{" "}
-            <span className="bg-gradient-to-br from-brand to-lime bg-clip-text text-transparent">
+            <span className="bg-gradient-to-br from-brand-ink to-foreground bg-clip-text text-transparent">
               quiet
             </span>{" "}
             on purpose.

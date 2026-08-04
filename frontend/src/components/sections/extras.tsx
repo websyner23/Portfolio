@@ -25,7 +25,7 @@ export function Extras() {
             >
               <div className="flex items-baseline justify-between gap-3">
                 <h3 className="text-lg font-semibold font-display">{e.title}</h3>
-                <span className="text-base md:text-lg font-semibold text-brand whitespace-nowrap">{e.price}</span>
+                <span className="text-base md:text-lg font-semibold text-brand-ink whitespace-nowrap">{e.price}</span>
               </div>
               <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{e.description}</p>
             </motion.div>

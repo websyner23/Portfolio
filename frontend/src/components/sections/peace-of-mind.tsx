@@ -32,14 +32,14 @@ export function PeaceOfMind() {
     <Section className="py-0" bleed>
       <div className="relative overflow-hidden bg-brand text-brand-foreground">
         <div className="pointer-events-none absolute inset-0 bg-grid opacity-15" aria-hidden />
-        <div className="pointer-events-none absolute -top-40 -right-40 size-96 rounded-full bg-lime/30 blur-3xl" aria-hidden />
-        <div className="pointer-events-none absolute -bottom-40 -left-40 size-96 rounded-full bg-fuchsia-500/30 blur-3xl" aria-hidden />
+        <div className="pointer-events-none absolute -top-40 -right-40 size-96 rounded-full bg-navy/20 blur-3xl" aria-hidden />
+        <div className="pointer-events-none absolute -bottom-40 -left-40 size-96 rounded-full bg-white/15 blur-3xl" aria-hidden />
 
         <Container className="relative py-20 md:py-28">
           <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
             <div className="lg:col-span-5">
               <div className="inline-flex items-center gap-2 rounded-full border border-brand-foreground/20 bg-brand-foreground/10 px-3 py-1 text-xs font-medium uppercase tracking-wider">
-                <span className="size-1.5 rounded-full bg-lime" />
+                <span className="size-1.5 rounded-full bg-brand-foreground" />
                 Peace of mind
               </div>
               <h2 className="mt-5 text-balance text-3xl md:text-5xl font-semibold font-display tracking-tight leading-[1.05]">

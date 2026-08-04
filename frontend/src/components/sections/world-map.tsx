@@ -117,7 +117,7 @@ export function WorldMap() {
           eyebrow="Areas we've served"
           title={
             <>
-              We work where <span className="text-brand">your team works</span> — anywhere.
+              We work where <span className="text-brand-ink">your team works</span> — anywhere.
             </>
           }
           description="Remote-first by design. We've shipped projects across 38 countries and six continents, with weekly cadence and time-zone coverage that fits your team."
@@ -154,7 +154,7 @@ export function WorldMap() {
                   <linearGradient id="arc-grad" x1="0" y1="0" x2="1" y2="0">
                     <stop offset="0%" stopColor="var(--brand)" stopOpacity="0" />
                     <stop offset="50%" stopColor="var(--brand)" stopOpacity="0.9" />
-                    <stop offset="100%" stopColor="var(--lime)" stopOpacity="0" />
+                    <stop offset="100%" stopColor="var(--brand)" stopOpacity="0" />
                   </linearGradient>
                 </defs>
 
@@ -248,7 +248,7 @@ export function WorldMap() {
                     key={l.name}
                     className="flex items-center gap-3 px-5 py-3.5 hover:bg-secondary/30 transition-colors"
                   >
-                    <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-brand/10 text-brand">
+                    <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-brand/10 text-brand-ink">
                       <MapPin className="size-4" />
                     </div>
                     <div className="flex-1 min-w-0">

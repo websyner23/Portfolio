@@ -23,7 +23,7 @@ export default function AboutPage() {
         title={
           <>
             We&apos;re a small studio with a{" "}
-            <span className="bg-gradient-to-br from-brand to-lime bg-clip-text text-transparent">
+            <span className="bg-gradient-to-br from-brand-ink to-foreground bg-clip-text text-transparent">
               big standard
             </span>{" "}
             for craft.

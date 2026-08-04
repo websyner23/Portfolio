@@ -25,7 +25,7 @@ export default function PortfolioPage() {
         title={
           <>
             Work we&apos;re{" "}
-            <span className="bg-gradient-to-br from-brand to-lime bg-clip-text text-transparent">
+            <span className="bg-gradient-to-br from-brand-ink to-foreground bg-clip-text text-transparent">
               proud of
             </span>{" "}
             and willing to talk about.
@@ -49,7 +49,7 @@ export default function PortfolioPage() {
         title={
           <>
             Let&apos;s build something{" "}
-            <span className="bg-lime/40 px-1.5 -mx-1 rounded">worth showing off.</span>
+            <span className="bg-brand/30 px-1.5 -mx-1 rounded">worth showing off.</span>
           </>
         }
         description="Get a free quote today and join our growing list of happy clients. Most projects start within two weeks."

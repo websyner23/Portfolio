@@ -22,7 +22,7 @@ export default function ServicesPage() {
         title={
           <>
             Five practices,{" "}
-            <span className="bg-gradient-to-br from-brand to-lime bg-clip-text text-transparent">
+            <span className="bg-gradient-to-br from-brand-ink to-foreground bg-clip-text text-transparent">
               one team
             </span>{" "}
             that owns the outcome.

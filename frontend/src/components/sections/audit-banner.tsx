@@ -19,7 +19,7 @@ export function AuditBanner({
   title = (
     <>
       A no-strings audit of your current site —{" "}
-      <span className="bg-lime/40 px-1.5 -mx-1 rounded">delivered in 48 hours.</span>
+      <span className="bg-navy/15 px-1.5 -mx-1 rounded">delivered in 48 hours.</span>
     </>
   ),
   description = "We'll run your site through our checklist — performance, SEO, accessibility, conversion — and send back a prioritized list of fixes you can ship today.",
@@ -37,8 +37,8 @@ export function AuditBanner({
           className="relative overflow-hidden rounded-3xl border border-border bg-brand text-brand-foreground"
         >
           <div className="pointer-events-none absolute inset-0 bg-grid opacity-15" aria-hidden />
-          <div className="pointer-events-none absolute -top-24 -right-24 size-72 rounded-full bg-lime/40 blur-3xl" aria-hidden />
-          <div className="pointer-events-none absolute -bottom-24 -left-24 size-72 rounded-full bg-fuchsia-500/30 blur-3xl" aria-hidden />
+          <div className="pointer-events-none absolute -top-24 -right-24 size-72 rounded-full bg-white/15 blur-3xl" aria-hidden />
+          <div className="pointer-events-none absolute -bottom-24 -left-24 size-72 rounded-full bg-navy/20 blur-3xl" aria-hidden />
 
           <div className="relative grid gap-8 md:grid-cols-12 items-center p-8 md:p-12 lg:p-16">
             <div className="md:col-span-8">
@@ -54,7 +54,7 @@ export function AuditBanner({
               </p>
             </div>
             <div className="md:col-span-4 md:text-right">
-              <Button asChild size="xl" variant="lime">
+              <Button asChild size="xl" variant="navy">
                 <Link href={ctaHref}>
                   {ctaLabel}
                   <ArrowUpRight className="size-4" />

@@ -21,7 +21,7 @@ export default function ContactPage() {
         title={
           <>
             Let&apos;s talk about{" "}
-            <span className="bg-gradient-to-br from-brand to-lime bg-clip-text text-transparent">
+            <span className="bg-gradient-to-br from-brand-ink to-foreground bg-clip-text text-transparent">
               what you&apos;re building.
             </span>
           </>

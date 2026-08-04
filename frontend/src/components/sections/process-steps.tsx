@@ -33,7 +33,7 @@ export function ProcessSteps() {
                   <div className={`md:order-${reverse ? "2" : "1"} pl-16 md:pl-0 ${reverse ? "md:pr-12 md:text-right" : "md:pl-12"}`}>
                     <div className={`flex items-center gap-3 ${reverse ? "md:justify-end" : ""}`}>
                       <div className="text-xs font-mono text-muted-foreground">{p.step}</div>
-                      <div className="text-xs font-medium text-brand">{p.duration}</div>
+                      <div className="text-xs font-medium text-brand-ink">{p.duration}</div>
                     </div>
                     <h3 className="mt-3 text-2xl md:text-3xl font-semibold font-display tracking-tight">{p.title}</h3>
                     <p className="mt-3 text-base text-muted-foreground leading-relaxed">{p.description}</p>
@@ -43,7 +43,7 @@ export function ProcessSteps() {
                           key={b}
                           className={`flex items-start gap-2 text-sm text-foreground/85 [direction:ltr]`}
                         >
-                          <span className="mt-0.5 inline-flex size-4 shrink-0 items-center justify-center rounded-full bg-brand/15 text-brand">
+                          <span className="mt-0.5 inline-flex size-4 shrink-0 items-center justify-center rounded-full bg-brand/15 text-brand-ink">
                             <Check className="size-3" />
                           </span>
                           <span>{b}</span>
@@ -53,8 +53,8 @@ export function ProcessSteps() {
                   </div>
                   <div className={`md:order-${reverse ? "1" : "2"}`}>
                     <div className={`relative ${reverse ? "md:mr-auto" : "md:ml-auto"} max-w-md`}>
-                      <div className="aspect-[4/3] rounded-2xl border border-border bg-gradient-to-br from-brand/10 via-card to-lime/10 p-8 flex items-center justify-center overflow-hidden">
-                        <Icon className="size-24 md:size-32 text-brand/60" strokeWidth={1.2} />
+                      <div className="aspect-[4/3] rounded-2xl border border-border bg-gradient-to-br from-brand/10 via-card to-navy/8 p-8 flex items-center justify-center overflow-hidden">
+                        <Icon className="size-24 md:size-32 text-brand-ink/60" strokeWidth={1.2} />
                       </div>
                     </div>
                   </div>

@@ -27,7 +27,7 @@ export default function PricingPage() {
         title={
           <>
             Honest pricing, no{" "}
-            <span className="bg-gradient-to-br from-brand to-lime bg-clip-text text-transparent">
+            <span className="bg-gradient-to-br from-brand-ink to-foreground bg-clip-text text-transparent">
               surprises.
             </span>
           </>

@@ -88,7 +88,7 @@ export default async function ServiceDetailPage({
               <ul className="space-y-3">
                 {service.outcomes.map((o) => (
                   <li key={o} className="flex items-start gap-3 rounded-xl border border-border bg-card p-4">
-                    <Check className="mt-0.5 size-5 shrink-0 text-brand" />
+                    <Check className="mt-0.5 size-5 shrink-0 text-brand-ink" />
                     <span className="text-foreground/90">{o}</span>
                   </li>
                 ))}
@@ -103,7 +103,7 @@ export default async function ServiceDetailPage({
                 <ul className="mt-5 space-y-2.5">
                   {service.deliverables.map((d) => (
                     <li key={d} className="flex items-start gap-2 text-sm">
-                      <Check className="mt-0.5 size-4 shrink-0 text-brand" />
+                      <Check className="mt-0.5 size-4 shrink-0 text-brand-ink" />
                       <span className="text-foreground/85">{d}</span>
                     </li>
                   ))}
@@ -139,7 +139,7 @@ export default async function ServiceDetailPage({
                 key={p.title}
                 className="relative rounded-2xl border border-border bg-card p-6"
               >
-                <div className="text-xs font-mono text-brand">/ {String(i + 1).padStart(2, "0")}</div>
+                <div className="text-xs font-mono text-brand-ink">/ {String(i + 1).padStart(2, "0")}</div>
                 <div className="mt-3 text-base font-semibold font-display">{p.title}</div>
                 <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{p.description}</p>
               </li>
@@ -167,12 +167,12 @@ export default async function ServiceDetailPage({
                   href={`/services/${s.slug}`}
                   className="group rounded-2xl border border-border bg-card p-6 hover:border-brand/40 transition-colors"
                 >
-                  <div className="flex size-11 items-center justify-center rounded-xl bg-brand/10 text-brand">
+                  <div className="flex size-11 items-center justify-center rounded-xl bg-brand/10 text-brand-ink">
                     <OIcon className="size-5" />
                   </div>
                   <h3 className="mt-4 text-lg font-semibold font-display">{s.title}</h3>
                   <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{s.short}</p>
-                  <div className="mt-4 flex items-center gap-1 text-sm font-medium text-brand">
+                  <div className="mt-4 flex items-center gap-1 text-sm font-medium text-brand-ink">
                     View details
                     <ArrowUpRight className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                   </div>
@@ -199,7 +199,7 @@ function Stat({
 }) {
   return (
     <div className="flex items-center gap-4 rounded-2xl border border-border bg-card p-5">
-      <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand">
+      <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand-ink">
         <Icon className="size-5" />
       </div>
       <div>

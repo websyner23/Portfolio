@@ -87,7 +87,7 @@ export function PortfolioGrid() {
                         </div>
                       </div>
                     ))}
-                    <span className="ml-auto inline-flex items-center gap-1 text-xs font-medium text-brand">
+                    <span className="ml-auto inline-flex items-center gap-1 text-xs font-medium text-brand-ink">
                       View website
                       <ArrowUpRight className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                     </span>

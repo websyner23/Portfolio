@@ -25,7 +25,7 @@ export function Industries() {
             <Badge
               key={i}
               variant="outline"
-              className="px-5 py-2 text-sm hover:border-brand hover:bg-brand/5 hover:text-brand cursor-default transition-colors"
+              className="px-5 py-2 text-sm hover:border-brand hover:bg-brand/5 hover:text-brand-ink cursor-default transition-colors"
             >
               {i}
             </Badge>

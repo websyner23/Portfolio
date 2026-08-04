@@ -20,12 +20,12 @@ export function MoreThan() {
           >
             <div className="relative rounded-3xl border border-border bg-card overflow-hidden shadow-xl shadow-foreground/5">
               <div className="flex items-center gap-2 border-b border-border bg-secondary/40 px-4 py-3">
-                <span className="size-2.5 rounded-full bg-red-400/70" />
-                <span className="size-2.5 rounded-full bg-amber-400/70" />
-                <span className="size-2.5 rounded-full bg-emerald-400/70" />
+                <span className="size-2.5 rounded-full bg-destructive/50" />
+                <span className="size-2.5 rounded-full bg-brand/70" />
+                <span className="size-2.5 rounded-full bg-brand/70" />
                 <span className="ml-3 text-xs text-muted-foreground font-mono">studio.websyner.co</span>
               </div>
-              <div className="relative aspect-[4/3] bg-gradient-to-br from-brand/15 via-card to-lime/15">
+              <div className="relative aspect-[4/3] bg-gradient-to-br from-brand/15 via-card to-navy/12">
                 <div className="absolute inset-0 bg-dot opacity-30" />
                 <div className="absolute inset-0 grid grid-cols-2 grid-rows-2 gap-3 p-6">
                   {[
@@ -49,7 +49,7 @@ export function MoreThan() {
                 </div>
               </div>
               <div className="flex items-center justify-between gap-3 border-t border-border bg-secondary/30 px-5 py-3">
-                <div className="flex items-center gap-1 text-amber-400">
+                <div className="flex items-center gap-1 text-brand-ink">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Star key={i} className="size-3.5 fill-current" />
                   ))}
@@ -84,7 +84,7 @@ export function MoreThan() {
                 "Built-in analytics and conversion baselines",
               ].map((p) => (
                 <li key={p} className="flex items-start gap-3">
-                  <span className="mt-1 inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-brand/15 text-brand">
+                  <span className="mt-1 inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-brand/15 text-brand-ink">
                     <ArrowRight className="size-3" />
                   </span>
                   <span className="text-foreground/85">{p}</span>

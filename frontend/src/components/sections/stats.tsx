@@ -28,7 +28,7 @@ export function Stats() {
   return (
     <Section className="py-16 md:py-20">
       <Container>
-        <div className="rounded-3xl border border-border bg-gradient-to-br from-brand/8 via-background to-lime/8 p-8 md:p-12">
+        <div className="rounded-3xl border border-border bg-gradient-to-br from-brand/8 via-background to-navy/6 p-8 md:p-12">
           <div className="grid gap-10 md:grid-cols-4">
             {homeStats.map((s, i) => {
               const numeric = parseInt(s.value, 10);
@@ -43,7 +43,7 @@ export function Stats() {
                   className="flex items-start gap-4"
                 >
                   <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-background border border-border">
-                    <Icon className="size-5 text-brand" />
+                    <Icon className="size-5 text-brand-ink" />
                   </div>
                   <div>
                     <div className="text-3xl md:text-4xl font-semibold font-display tracking-tight">

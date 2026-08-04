@@ -43,7 +43,7 @@ function TestimonialCard({ t, delay = 0 }: { t: Testimonial; delay?: number }) {
       className="relative rounded-2xl border border-border bg-card p-7 shadow-sm hover:border-brand/40 transition-colors"
     >
       <Quote className="absolute right-6 top-6 size-7 text-muted-foreground/20" aria-hidden />
-      <div className="flex items-center gap-1 text-amber-400">
+      <div className="flex items-center gap-1 text-brand-ink">
         {Array.from({ length: t.rating ?? 5 }).map((_, i) => (
           <Star key={i} className="size-4 fill-current" />
         ))}
@@ -52,7 +52,7 @@ function TestimonialCard({ t, delay = 0 }: { t: Testimonial; delay?: number }) {
         “{t.quote}”
       </blockquote>
       <figcaption className="mt-6 flex items-center gap-3 border-t border-border pt-5">
-        <div className="flex size-10 items-center justify-center rounded-full bg-gradient-to-br from-brand/30 to-lime/30 text-sm font-semibold">
+        <div className="flex size-10 items-center justify-center rounded-full bg-gradient-to-br from-brand/30 to-navy/20 text-sm font-semibold">
           {t.initials}
         </div>
         <div className="text-sm">

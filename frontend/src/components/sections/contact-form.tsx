@@ -142,13 +142,13 @@ export function ContactForm() {
                     exit={{ opacity: 0 }}
                     className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-card/95 backdrop-blur-sm p-8 text-center"
                   >
-                    <div className="flex size-16 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-600">
+                    <div className="flex size-16 items-center justify-center rounded-full bg-brand/15 text-brand-ink">
                       <CheckCircle2 className="size-8" />
                     </div>
                     <h3 className="mt-5 text-2xl font-semibold font-display">Got it — thank you.</h3>
                     <p className="mt-2 max-w-sm text-muted-foreground leading-relaxed">
                       We&apos;ll review the details and reply within one business day. If it&apos;s urgent, email{" "}
-                      <a href={`mailto:${site.email}`} className="text-brand underline">
+                      <a href={`mailto:${site.email}`} className="text-brand-ink underline">
                         {site.email}
                       </a>
                       .
@@ -297,13 +297,13 @@ export function ContactForm() {
 
                 <div className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-lg border border-border bg-secondary/30 px-4 py-3 text-xs text-muted-foreground">
                   <span className="inline-flex items-center gap-1.5">
-                    <Check className="size-3.5 text-brand" /> No spam, ever
+                    <Check className="size-3.5 text-brand-ink" /> No spam, ever
                   </span>
                   <span className="inline-flex items-center gap-1.5">
-                    <Check className="size-3.5 text-brand" /> Reply within 24 hours
+                    <Check className="size-3.5 text-brand-ink" /> Reply within 24 hours
                   </span>
                   <span className="inline-flex items-center gap-1.5">
-                    <Check className="size-3.5 text-brand" /> 5.0 average rating
+                    <Check className="size-3.5 text-brand-ink" /> 5.0 average rating
                   </span>
                 </div>
 
@@ -368,7 +368,7 @@ export function ContactForm() {
                     "Fixed-scope quote within a week",
                   ].map((p) => (
                     <li key={p} className="flex items-start gap-2">
-                      <Check className="mt-0.5 size-4 shrink-0 text-brand" />
+                      <Check className="mt-0.5 size-4 shrink-0 text-brand-ink" />
                       <span className="text-foreground/85">{p}</span>
                     </li>
                   ))}
@@ -422,7 +422,7 @@ function ContactCard({
 }) {
   const Content = (
     <>
-      <div className="flex size-11 items-center justify-center rounded-xl bg-brand/10 text-brand">
+      <div className="flex size-11 items-center justify-center rounded-xl bg-brand/10 text-brand-ink">
         <Icon className="size-5" />
       </div>
       <div className="flex-1">

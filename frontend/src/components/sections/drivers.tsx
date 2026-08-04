@@ -24,7 +24,7 @@ export function Drivers() {
               transition={{ duration: 0.4, delay: i * 0.05 }}
               className="rounded-2xl border border-border bg-card p-7 md:p-8"
             >
-              <div className="text-5xl md:text-6xl font-semibold font-display text-brand">
+              <div className="text-5xl md:text-6xl font-semibold font-display text-brand-ink">
                 {d.title.charAt(0)}
               </div>
               <h3 className="mt-4 text-lg font-semibold font-display">{d.title}</h3>
