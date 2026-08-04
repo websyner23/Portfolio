@@ -1,0 +1,113 @@
+# ---------------------------------------------
+# WebSyner — root ignore (frontend / admin / backend)
+# ---------------------------------------------
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+jspm_packages/
+bower_components/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+!.env.sample
+*.pem
+*.key
+*.p12
+*.pfx
+secrets.json
+serviceAccountKey.json
+
+# Next.js
+.next/
+out/
+
+# Build output
+build/
+dist/
+.output/
+.turbo/
+.swc/
+*.tsbuildinfo
+next-env.d.ts
+
+# Caches
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+.npm/
+.rollup.cache/
+.vite/
+
+# Testing / coverage
+coverage/
+*.lcov
+.nyc_output/
+playwright-report/
+test-results/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Backend runtime
+uploads/
+tmp/
+temp/
+*.sqlite
+*.sqlite3
+*.db
+dump.rdb
+
+# Prisma / DB local artifacts
+prisma/*.db
+prisma/*.db-journal
+prisma/migrations/dev/
+
+# Deploy platforms
+.vercel/
+.netlify/
+.serverless/
+.firebase/
+.amplify/
+
+# Editors / IDE
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*.sublime-workspace
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Misc
+*.tgz
+*.zip
+*.bak
+*.orig
