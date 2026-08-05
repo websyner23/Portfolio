@@ -95,3 +95,14 @@ export const portfolioFaqs: Faq[] = [
     a: "Yes — landing pages, brand refreshes, and audits are often great fits.",
   },
 ];
+
+/** API-shaped fallback keyed by group, used by src/lib/content.ts. */
+const withIds = (items: Faq[], group: string) =>
+  items.map((faq, i) => ({ ...faq, _id: `${group}-${i}`, group }));
+
+export const faqsFallback: Record<string, ReturnType<typeof withIds>> = {
+  general: withIds(generalFaqs, "general"),
+  process: withIds(processFaqs, "process"),
+  pricing: withIds(pricingFaqs, "pricing"),
+  portfolio: withIds(portfolioFaqs, "portfolio"),
+};

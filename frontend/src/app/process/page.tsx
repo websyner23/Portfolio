@@ -9,7 +9,7 @@ import { AfterLaunch } from "@/components/sections/after-launch";
 import { FaqSection } from "@/components/sections/faq";
 import { Cta } from "@/components/sections/cta";
 import { Button } from "@/components/ui/button";
-import { processFaqs } from "@/data/faqs";
+import { getFaqs } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Process",
@@ -17,7 +17,9 @@ export const metadata: Metadata = {
     "How we run engagements at WebSyner — from discovery to launch and beyond. Predictable, transparent, accountable.",
 };
 
-export default function ProcessPage() {
+export default async function ProcessPage() {
+  const faqs = await getFaqs("process");
+
   return (
     <>
       <PageBanner
@@ -46,7 +48,7 @@ export default function ProcessPage() {
       <ProcessSteps />
       <PeaceOfMind />
       <AfterLaunch />
-      <FaqSection items={processFaqs} title={<>How engagements actually run</>} />
+      <FaqSection items={faqs} title={<>How engagements actually run</>} />
       <Cta />
     </>
   );

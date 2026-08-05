@@ -63,3 +63,9 @@ export const testimonials: Testimonial[] = [
     rating: 5,
   },
 ];
+
+/** API-shaped ids for the offline fallback path (src/lib/content.ts). */
+export const testimonialsFallback = testimonials.map((t, i) => ({
+  ...t,
+  _id: `${t.name}-${i}`,
+}));

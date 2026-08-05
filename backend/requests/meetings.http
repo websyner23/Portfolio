@@ -1,0 +1,116 @@
+@baseUrl = http://localhost:5000/api/v1
+
+### --- PUBLIC (no auth) — what the website's scheduler calls ---
+
+### Availability for a month (drives the calendar)
+GET {{baseUrl}}/public/meetings/availability?month=2026-09
+
+### Book a slot
+POST {{baseUrl}}/public/meetings
+Content-Type: application/json
+
+{
+  "name": "Jane Doe",
+  "email": "jane@example.com",
+  "topic": "Website rebuild for Q4",
+  "date": "2026-09-02",
+  "time": "14:00",
+  "timezone": "Europe/London"
+}
+
+### Booking the same slot again → 409 (slot already taken)
+POST {{baseUrl}}/public/meetings
+Content-Type: application/json
+
+{
+  "name": "Someone Else",
+  "email": "other@example.com",
+  "date": "2026-09-02",
+  "time": "14:00",
+  "timezone": "Europe/London"
+}
+
+### --- ADMIN (auth required) ---
+
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@websyner.co",
+  "password": "admin12345"
+}
+
+###
+@token = {{login.response.body.$.data.accessToken}}
+
+### List meetings
+# @name meetings
+GET {{baseUrl}}/meetings?page=1&limit=10
+Authorization: Bearer {{token}}
+
+###
+@meetingId = {{meetings.response.body.$.data.0._id}}
+
+### Date-range view for the calendar
+GET {{baseUrl}}/meetings?from=2026-09-01&to=2026-09-30
+Authorization: Bearer {{token}}
+
+### Only pending requests
+GET {{baseUrl}}/meetings?status=pending
+Authorization: Bearer {{token}}
+
+### Next few upcoming meetings (dashboard widget)
+GET {{baseUrl}}/meetings/upcoming
+Authorization: Bearer {{token}}
+
+### Confirm and attach a meeting link (emails the visitor)
+PATCH {{baseUrl}}/meetings/{{meetingId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "confirmed",
+  "meetingLink": "https://meet.google.com/abc-defg-hij"
+}
+
+### Reschedule (emails the visitor)
+PATCH {{baseUrl}}/meetings/{{meetingId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "rescheduled",
+  "date": "2026-09-03",
+  "time": "15:00"
+}
+
+### Cancel with a reason (emails the visitor)
+PATCH {{baseUrl}}/meetings/{{meetingId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "cancelled",
+  "adminNotes": "Sorry — a conflict came up on our side."
+}
+
+### Availability settings
+GET {{baseUrl}}/meetings/settings
+Authorization: Bearer {{token}}
+
+### Update availability
+PATCH {{baseUrl}}/meetings/settings
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "slotTimes": ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"],
+  "disabledWeekdays": [0, 6],
+  "leadTimeHours": 12,
+  "maxPerSlot": 1
+}
+
+### Delete a booking
+DELETE {{baseUrl}}/meetings/{{meetingId}}
+Authorization: Bearer {{token}}

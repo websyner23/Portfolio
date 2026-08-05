@@ -1,0 +1,77 @@
+@baseUrl = http://localhost:5000/api/v1
+
+### Health check (no auth)
+GET {{baseUrl}}/health
+
+### Login — the response's accessToken is reused by the requests below
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@websyner.co",
+  "password": "admin12345"
+}
+
+###
+@token = {{login.response.body.$.data.accessToken}}
+
+### Current profile (permissions included)
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{token}}
+
+### Refresh the access token (uses the httpOnly refresh cookie)
+POST {{baseUrl}}/auth/refresh-token
+
+### Change own password
+POST {{baseUrl}}/auth/change-password
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "oldPassword": "admin12345",
+  "newPassword": "admin12345"
+}
+
+### Forgot password — emails a reset link (logged to console if SMTP is unset)
+POST {{baseUrl}}/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "admin@websyner.co"
+}
+
+### Reset password with the emailed token
+POST {{baseUrl}}/auth/reset-password
+Content-Type: application/json
+
+{
+  "email": "admin@websyner.co",
+  "token": "paste-token-from-email",
+  "newPassword": "newpassword123"
+}
+
+### Logout — clears the refresh cookie
+POST {{baseUrl}}/auth/logout
+
+### --- Failure cases worth checking ---
+
+### Wrong password → 401, generic message (no account enumeration)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@websyner.co",
+  "password": "wrong-password"
+}
+
+### Invalid payload → 400 with errorSources from zod
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "not-an-email"
+}
+
+### No token → 401
+GET {{baseUrl}}/auth/me

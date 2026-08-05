@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { useAppDispatch, useAppSelector, saveDraft, markSubmitted, resetSubmitted } from "@/lib/store";
 import { services } from "@/data/services";
 import { site } from "@/data/site";
+import { submitLead } from "@/lib/client-api";
 import { cn } from "@/lib/utils";
 
 const budgetOptions = [
@@ -84,6 +85,7 @@ export function ContactForm() {
     reset,
     watch,
     setValue,
+    setError,
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -120,9 +122,35 @@ export function ContactForm() {
     }
   }, [watched.name, watched.email, watched.service, watched.budget, watched.message, dispatch]);
 
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
   const onSubmit = async (values: FormValues) => {
-    await new Promise((r) => setTimeout(r, 900));
-    console.log("[contact] submitting", values);
+    setSubmitError(null);
+
+    const result = await submitLead({
+      type: "contact",
+      name: values.name,
+      email: values.email,
+      phone: values.phone,
+      company: values.company,
+      service: values.service,
+      budget: values.budget,
+      timeline: values.timeline,
+      referral: values.referral,
+      startDate: values.startDate,
+      message: values.message,
+      sourcePage: "/contact",
+    });
+
+    if (!result.ok) {
+      // Map any field-level errors from the API back onto the form.
+      Object.entries(result.error.fields ?? {}).forEach(([field, message]) => {
+        setError(field as keyof FormValues, { type: "server", message });
+      });
+      setSubmitError(result.error.message);
+      return;
+    }
+
     dispatch(markSubmitted());
     reset();
     setTimeout(() => dispatch(resetSubmitted()), 8000);
@@ -320,6 +348,15 @@ export function ContactForm() {
                     </span>
                   </label>
                 </Field>
+
+                {submitError && (
+                  <p
+                    role="alert"
+                    className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+                  >
+                    {submitError}
+                  </p>
+                )}
 
                 <Button type="submit" size="lg" variant="brand" disabled={isSubmitting} className="w-full sm:w-auto">
                   {isSubmitting ? "Sending…" : "Send message"}

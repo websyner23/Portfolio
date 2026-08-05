@@ -4,7 +4,8 @@ import "./globals.css";
 import { Providers } from "@/components/providers";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
-import { site } from "@/data/site";
+import { getSite, getSiteSettings } from "@/lib/content";
+import { buildThemeCss } from "@/lib/theme-css";
 import { themeInitScript } from "@/lib/theme";
 
 const inter = Inter({
@@ -25,45 +26,65 @@ const mono = JetBrains_Mono({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: `${site.name} — ${site.tagline}`,
-    template: `%s — ${site.name}`,
-  },
-  description: site.description,
-  metadataBase: new URL(site.url),
-  openGraph: {
-    title: `${site.name} — ${site.tagline}`,
-    description: site.description,
-    url: site.url,
-    siteName: site.name,
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: `${site.name} — ${site.tagline}`,
-    description: site.description,
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  const title = settings.seo?.metaTitle ?? settings.brandName;
+  const description = settings.seo?.metaDescription ?? settings.description;
 
-export default function RootLayout({
+  return {
+    title: {
+      default: `${settings.brandName} — ${settings.tagline}`,
+      template: `%s — ${settings.brandName}`,
+    },
+    description,
+    metadataBase: settings.url ? new URL(settings.url) : undefined,
+    openGraph: {
+      title: `${title} — ${settings.tagline}`,
+      description,
+      url: settings.url,
+      siteName: settings.brandName,
+      type: "website",
+      images: settings.seo?.ogImage ? [settings.seo.ogImage] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title} — ${settings.tagline}`,
+      description,
+    },
+  };
+}
+
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const { settings, theme } = await getSite();
+
+  // Colours configured in the admin panel override the defaults in
+  // globals.css. Rendered server-side so there's no flash of the old palette.
+  const themeCss = buildThemeCss(theme);
+  const initialMode = theme?.defaultMode ?? "dark";
+
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${jakarta.variable} ${mono.variable} h-full antialiased dark`}
+      className={`${inter.variable} ${jakarta.variable} ${mono.variable} h-full antialiased ${initialMode}`}
       data-scroll-behavior="smooth"
       suppressHydrationWarning
     >
       <head>
+        {themeCss && (
+          <style
+            id="websyner-theme"
+            dangerouslySetInnerHTML={{ __html: themeCss }}
+          />
+        )}
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <Providers>
-          <Navbar />
+          <Navbar settings={settings} />
           <main className="flex-1">{children}</main>
-          <Footer />
+          <Footer settings={settings} />
         </Providers>
       </body>
     </html>

@@ -129,3 +129,40 @@ export const processSummary = [
   { stat: "Weekly", label: "Shipping cadence" },
   { stat: "100%", label: "Source code ownership" },
 ];
+
+/** API-shaped fallback used by src/lib/content.ts when the backend is down. */
+const PROCESS_ICON_NAMES = new Map<LucideIcon, string>([
+  [Compass, "Compass"],
+  [PenTool, "PenTool"],
+  [Code2, "Code2"],
+  [Rocket, "Rocket"],
+  [LineChart, "LineChart"],
+  [HeartHandshake, "HeartHandshake"],
+]);
+
+export const processFallback = [
+  ...processSteps.map((step, i) => ({
+    ...step,
+    _id: `step-${i}`,
+    icon: PROCESS_ICON_NAMES.get(step.icon) ?? "Sparkles",
+    group: "step" as const,
+    bullets: step.bullets ?? [],
+  })),
+  ...afterLaunch.map((item, i) => ({
+    _id: `after-${i}`,
+    title: item.title,
+    description: item.description,
+    icon: "Sparkles",
+    bullets: [] as string[],
+    group: "after-launch" as const,
+  })),
+  ...processSummary.map((item, i) => ({
+    _id: `summary-${i}`,
+    title: item.label,
+    description: "",
+    icon: "Sparkles",
+    bullets: [] as string[],
+    stat: item.stat,
+    group: "summary" as const,
+  })),
+];

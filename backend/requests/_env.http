@@ -1,0 +1,11 @@
+### WebSyner API — shared variables
+#
+# Open these .http files with the VS Code "REST Client" extension
+# (humao.rest-client) and click "Send Request" above any block.
+#
+# Workflow: run auth.http → Login first; copy the accessToken from the
+# response into @token below (or use the {{login.response.body.$.data.accessToken}}
+# chaining shown in auth.http).
+
+@baseUrl = http://localhost:5000/api/v1
+@token = paste-access-token-here

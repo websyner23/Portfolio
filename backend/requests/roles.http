@@ -1,0 +1,70 @@
+@baseUrl = http://localhost:5000/api/v1
+
+### Login first to obtain a token
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@websyner.co",
+  "password": "admin12345"
+}
+
+###
+@token = {{login.response.body.$.data.accessToken}}
+
+### Permission catalog — powers the admin role matrix
+GET {{baseUrl}}/roles/permissions
+Authorization: Bearer {{token}}
+
+### List roles (QueryBuilder: searchTerm, sort, page, limit, fields)
+GET {{baseUrl}}/roles?page=1&limit=10&sort=name
+Authorization: Bearer {{token}}
+
+### Search roles
+GET {{baseUrl}}/roles?searchTerm=admin
+Authorization: Bearer {{token}}
+
+### Create a role
+# @name createRole
+POST {{baseUrl}}/roles
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "content-editor",
+  "description": "Can manage website content only",
+  "permissions": ["dashboard.view", "cms.manage"]
+}
+
+###
+@roleId = {{createRole.response.body.$.data._id}}
+
+### Get one role
+GET {{baseUrl}}/roles/{{roleId}}
+Authorization: Bearer {{token}}
+
+### Update a role's permissions
+PATCH {{baseUrl}}/roles/{{roleId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "permissions": ["dashboard.view", "cms.manage", "leads.view"]
+}
+
+### Delete a role (fails if any user still has it)
+DELETE {{baseUrl}}/roles/{{roleId}}
+Authorization: Bearer {{token}}
+
+### --- Failure cases ---
+
+### Unknown permission → 400
+POST {{baseUrl}}/roles
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "bogus-role",
+  "permissions": ["not.a.real.permission"]
+}

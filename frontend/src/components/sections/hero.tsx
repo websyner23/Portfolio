@@ -12,6 +12,7 @@ import { Container } from "@/components/ui/section";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { services } from "@/data/services";
+import { submitLead } from "@/lib/client-api";
 
 const quoteSchema = z.object({
   name: z.string().min(2, "Your name"),
@@ -89,19 +90,38 @@ export function Hero() {
 
 function QuoteForm() {
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
+    setError,
   } = useForm<QuoteValues>({
     resolver: zodResolver(quoteSchema),
     defaultValues: { name: "", email: "", service: "", message: "" },
   });
 
   const onSubmit = async (values: QuoteValues) => {
-    await new Promise((r) => setTimeout(r, 700));
-    console.log("[hero-quote] submitted", values);
+    setSubmitError(null);
+
+    const result = await submitLead({
+      type: "quick-quote",
+      name: values.name,
+      email: values.email,
+      service: values.service,
+      message: values.message,
+      sourcePage: "/",
+    });
+
+    if (!result.ok) {
+      Object.entries(result.error.fields ?? {}).forEach(([field, message]) => {
+        setError(field as keyof QuoteValues, { type: "server", message });
+      });
+      setSubmitError(result.error.message);
+      return;
+    }
+
     setSubmitted(true);
     reset();
     setTimeout(() => setSubmitted(false), 6000);
@@ -152,6 +172,12 @@ function QuoteForm() {
 
           {(errors.name || errors.email || errors.service || errors.message) && (
             <p className="text-xs text-destructive">Please fill the required fields.</p>
+          )}
+
+          {submitError && (
+            <p role="alert" className="text-xs text-destructive">
+              {submitError}
+            </p>
           )}
 
           <Button type="submit" variant="brand" size="lg" className="w-full" disabled={isSubmitting}>

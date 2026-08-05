@@ -104,3 +104,43 @@ export const industries: string[] = [
   "Agencies & Studios",
   "Non-profits",
 ];
+
+/** API-shaped fallback used by src/lib/content.ts when the backend is down. */
+const STAT_ICON_NAMES = new Map<LucideIcon, string>([
+  [Zap, "Zap"],
+  [Globe2, "Globe2"],
+  [Users, "Users"],
+  [Award, "Award"],
+]);
+
+const asStatDocs = (
+  items: { title: string; description: string }[],
+  group: string
+) =>
+  items.map((item, i) => ({
+    _id: `${group}-${i}`,
+    title: item.title,
+    description: item.description,
+    icon: "Sparkles",
+    group,
+  }));
+
+export const statsFallback = [
+  ...homeStats.map((stat, i) => ({
+    _id: `home-stats-${i}`,
+    label: stat.label,
+    value: stat.value,
+    suffix: stat.suffix,
+    icon: STAT_ICON_NAMES.get(stat.icon) ?? "Sparkles",
+    group: "home-stats",
+  })),
+  ...asStatDocs(websynerValues, "values"),
+  ...asStatDocs(whyChoose, "why-choose"),
+  ...asStatDocs(drivers, "drivers"),
+  ...industries.map((name, i) => ({
+    _id: `industries-${i}`,
+    label: name,
+    icon: "Sparkles",
+    group: "industries",
+  })),
+];

@@ -9,9 +9,16 @@ import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/brand/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { site } from "@/data/site";
+import type { SiteSettings } from "@/lib/content";
 import { cn } from "@/lib/utils";
 
-export function Navbar() {
+export function Navbar({ settings }: { settings?: SiteSettings | null }) {
+  // Falls back to the static site data when the API is unavailable.
+  const nav = (settings?.nav?.filter((item) => item.visible) ?? site.nav) as {
+    label: string;
+    href: string;
+  }[];
+
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -49,7 +56,7 @@ export function Navbar() {
         </Link>
 
         <nav className="hidden lg:flex items-center gap-1">
-          {site.nav.map((item) => {
+          {nav.map((item) => {
             const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
             return (
               <Link
@@ -109,7 +116,7 @@ export function Navbar() {
             className="lg:hidden border-t border-border bg-background"
           >
             <nav className="container-page flex flex-col py-4">
-              {site.nav.map((item) => {
+              {nav.map((item) => {
                 const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
                 return (
                   <Link

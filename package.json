@@ -1,0 +1,20 @@
+{
+  "name": "websyner",
+  "version": "1.0.0",
+  "private": true,
+  "description": "WebSyner platform — frontend (Next.js), admin (Vite + antd), backend (Express + Mongoose)",
+  "scripts": {
+    "dev": "concurrently -k -n api,web,admin -c magenta,green,blue \"npm:dev:backend\" \"npm:dev:frontend\" \"npm:dev:admin\"",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:admin": "npm --prefix admin run dev",
+    "dev:db": "npm --prefix backend run dev:db",
+    "install:all": "npm --prefix backend install && npm --prefix frontend install && npm --prefix admin install",
+    "build": "npm --prefix backend run build && npm --prefix frontend run build && npm --prefix admin run build",
+    "seed": "npm --prefix backend run seed",
+    "test": "npm --prefix backend test"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

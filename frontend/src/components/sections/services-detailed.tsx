@@ -4,15 +4,21 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Check } from "lucide-react";
 import { Section, Container } from "@/components/ui/section";
-import { services } from "@/data/services";
+import { servicesFallback } from "@/data/services";
+import type { ApiService } from "@/lib/content";
+import { getIcon } from "@/lib/icon-map";
 
-export function ServicesDetailed() {
+export function ServicesDetailed({
+  items = servicesFallback,
+}: {
+  items?: ApiService[];
+}) {
   return (
     <Section id="services">
       <Container>
         <div className="space-y-6 md:space-y-8">
-          {services.map((s, i) => {
-            const Icon = s.icon;
+          {items.map((s, i) => {
+            const Icon = getIcon(s.icon);
             const reverse = i % 2 === 1;
             return (
               <motion.article

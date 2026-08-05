@@ -46,3 +46,9 @@ export const team: TeamMember[] = [
     initials: "AT",
   },
 ];
+
+/** API-shaped ids for the offline fallback path (src/lib/content.ts). */
+export const teamFallback = team.map((member, i) => ({
+  ...member,
+  _id: `${member.name}-${i}`,
+}));

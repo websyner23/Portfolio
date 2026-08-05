@@ -251,3 +251,22 @@ export const services: Service[] = [
 ];
 
 export const getServiceBySlug = (slug: string) => services.find((s) => s.slug === slug);
+
+/**
+ * API-shaped fallback used by src/lib/content.ts when the backend is
+ * unreachable. Icon components are mapped back to the names the API stores.
+ */
+const SERVICE_ICON_NAMES = new Map<LucideIcon, string>([
+  [Layout, "Layout"],
+  [Search, "Search"],
+  [Sparkles, "Sparkles"],
+  [Code2, "Code2"],
+  [Cloud, "Cloud"],
+]);
+
+export const servicesFallback = services.map((service, index) => ({
+  ...service,
+  _id: service.slug,
+  icon: SERVICE_ICON_NAMES.get(service.icon) ?? "Sparkles",
+  order: index + 1,
+}));

@@ -169,3 +169,47 @@ export const portfolioCategories: PortfolioCategory[] = [
 ];
 
 export const getPortfolioBySlug = (slug: string) => portfolio.find((p) => p.slug === slug);
+
+/**
+ * API-shaped fallback used by src/lib/content.ts when the backend is
+ * unreachable. Tailwind gradient classes become hex pairs, matching how the
+ * API stores them (class strings from a database can't survive Tailwind's
+ * build-time content scan).
+ */
+const BRAND_HEX = "#0fcda1";
+const NAVY_HEX = "#1e2d40";
+
+const toSlug = (value: string) => value.toLowerCase().replace(/\s+/g, "-");
+
+export const portfolioFallback = {
+  categories: portfolioCategories
+    .filter((name) => name !== "All")
+    .map((name, index) => ({
+      _id: toSlug(name),
+      name,
+      slug: toSlug(name),
+      order: index + 1,
+    })),
+  items: portfolio.map((item, index) => ({
+    _id: item.slug,
+    slug: item.slug,
+    title: item.title,
+    client: item.client,
+    category: {
+      _id: toSlug(item.category),
+      name: item.category,
+      slug: toSlug(item.category),
+      order: 0,
+    },
+    summary: item.summary,
+    metrics: item.metrics,
+    tags: item.tags,
+    techStack: [] as string[],
+    year: item.year,
+    colors: {
+      from: item.gradient.includes("from-brand") ? BRAND_HEX : NAVY_HEX,
+      to: item.gradient.includes("to-brand") ? BRAND_HEX : NAVY_HEX,
+    },
+    featured: index < 3,
+  })),
+};

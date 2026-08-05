@@ -1,0 +1,34 @@
+@baseUrl = http://localhost:5000/api/v1
+
+### Login first
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@websyner.co",
+  "password": "admin12345"
+}
+
+###
+@token = {{login.response.body.$.data.accessToken}}
+
+### All audit entries, newest first
+GET {{baseUrl}}/audit-logs?page=1&limit=20
+Authorization: Bearer {{token}}
+
+### Filter by module
+GET {{baseUrl}}/audit-logs?module=auth
+Authorization: Bearer {{token}}
+
+### Filter by action
+GET {{baseUrl}}/audit-logs?action=auth.login
+Authorization: Bearer {{token}}
+
+### Filter by date range (inclusive)
+GET {{baseUrl}}/audit-logs?from=2026-08-01&to=2026-08-31
+Authorization: Bearer {{token}}
+
+### Search descriptions / endpoints
+GET {{baseUrl}}/audit-logs?searchTerm=logged in
+Authorization: Bearer {{token}}

@@ -4,22 +4,36 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { Section, Container, SectionHeading } from "@/components/ui/section";
-import { services } from "@/data/services";
+import { servicesFallback } from "@/data/services";
+import type { ApiService } from "@/lib/content";
+import { getIcon } from "@/lib/icon-map";
 import { cn } from "@/lib/utils";
 
-export function ServicesGrid({ id = "services" }: { id?: string }) {
+export function ServicesGrid({
+  id = "services",
+  items = servicesFallback,
+  eyebrow = "What we do",
+  title = "One studio, every layer of the stack",
+  description = "From a single landing page to a full SaaS platform — we shape strategy, design, and engineering into one accountable engagement.",
+}: {
+  id?: string;
+  items?: ApiService[];
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+}) {
   return (
     <Section id={id} className="bg-secondary/30 border-y border-border">
       <Container>
         <SectionHeading
-          eyebrow="What we do"
-          title={<>One studio, every layer of the stack</>}
-          description="From a single landing page to a full SaaS platform — we shape strategy, design, and engineering into one accountable engagement."
+          eyebrow={eyebrow}
+          title={title}
+          description={description}
         />
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {services.map((s, i) => {
-            const Icon = s.icon;
+          {items.map((s, i) => {
+            const Icon = getIcon(s.icon);
             return (
               <motion.div
                 key={s.slug}

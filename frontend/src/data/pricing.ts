@@ -105,3 +105,15 @@ export const compareRows: { feature: string; values: [string, string, string] }[
   { feature: "Project lead time", values: ["1–2 wks", "2–3 wks", "3–4 wks"] },
   { feature: "Typical timeline", values: ["4–8 wks", "6–10 wks", "12–20 wks"] },
 ];
+
+/** API-shaped fallback used by src/lib/content.ts when the backend is down. */
+export const pricingFallback = {
+  plans: pricingPlans.map((plan, i) => ({
+    ...plan,
+    _id: plan.id,
+    planId: plan.id,
+    order: i + 1,
+  })),
+  extras: extras.map((extra, i) => ({ ...extra, _id: `extra-${i}` })),
+  compareRows: compareRows.map((row, i) => ({ ...row, _id: `row-${i}` })),
+};

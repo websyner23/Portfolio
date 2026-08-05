@@ -11,7 +11,7 @@ import { PricingTestimonial } from "@/components/sections/pricing-testimonial";
 import { FaqSection } from "@/components/sections/faq";
 import { Cta } from "@/components/sections/cta";
 import { Button } from "@/components/ui/button";
-import { pricingFaqs } from "@/data/faqs";
+import { getFaqs } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Pricing",
@@ -19,7 +19,9 @@ export const metadata: Metadata = {
     "Honest, fixed-scope pricing. Three core plans, optional add-ons, and a clear path to a custom quote.",
 };
 
-export default function PricingPage() {
+export default async function PricingPage() {
+  const faqs = await getFaqs("pricing");
+
   return (
     <>
       <PageBanner
@@ -49,7 +51,7 @@ export default function PricingPage() {
       <IncludedEverywhere />
       <Compare />
       <PricingTestimonial />
-      <FaqSection items={pricingFaqs} title={<>Pricing questions, answered</>} />
+      <FaqSection items={faqs} title={<>Pricing questions, answered</>} />
       <Cta />
     </>
   );

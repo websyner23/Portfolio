@@ -1,0 +1,71 @@
+@baseUrl = http://localhost:5000/api/v1
+
+### Login first
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@websyner.co",
+  "password": "admin12345"
+}
+
+###
+@token = {{login.response.body.$.data.accessToken}}
+
+### List roles to grab a role id for the create below
+# @name roles
+GET {{baseUrl}}/roles?limit=100
+Authorization: Bearer {{token}}
+
+###
+@roleId = {{roles.response.body.$.data.0._id}}
+
+### List users
+GET {{baseUrl}}/users?page=1&limit=10
+Authorization: Bearer {{token}}
+
+### Search users by name or email
+GET {{baseUrl}}/users?searchTerm=jane
+Authorization: Bearer {{token}}
+
+### Create a user (omit password to auto-generate and email it)
+# @name createUser
+POST {{baseUrl}}/users
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Jane Doe",
+  "email": "jane@websyner.co",
+  "role": "{{roleId}}"
+}
+
+###
+@userId = {{createUser.response.body.$.data.user._id}}
+
+### Get one user
+GET {{baseUrl}}/users/{{userId}}
+Authorization: Bearer {{token}}
+
+### Update a user (block / change role)
+PATCH {{baseUrl}}/users/{{userId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "blocked"
+}
+
+### Admin-reset a user's password
+POST {{baseUrl}}/users/{{userId}}/reset-password
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "newPassword": "temporary123"
+}
+
+### Delete a user
+DELETE {{baseUrl}}/users/{{userId}}
+Authorization: Bearer {{token}}

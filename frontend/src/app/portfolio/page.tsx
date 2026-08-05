@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { ArrowUpRight } from "lucide-react";
 import { PageBanner } from "@/components/sections/page-banner";
 import { PortfolioSummary } from "@/components/sections/portfolio-summary";
@@ -9,7 +10,13 @@ import { PortfolioServicesLink } from "@/components/sections/portfolio-services-
 import { FaqSection } from "@/components/sections/faq";
 import { Cta } from "@/components/sections/cta";
 import { Button } from "@/components/ui/button";
-import { portfolioFaqs } from "@/data/faqs";
+import {
+  getFaqs,
+  getPortfolio,
+  getPortfolioCategories,
+  getSections,
+  sectionValue,
+} from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Portfolio",
@@ -17,11 +24,45 @@ export const metadata: Metadata = {
     "Selected case studies — websites, brands, and software shipped for ambitious teams across the world.",
 };
 
-export default function PortfolioPage() {
+export default async function PortfolioPage() {
+  const [{ data: items }, categories, faqs, sections] = await Promise.all([
+    getPortfolio(),
+    getPortfolioCategories(),
+    getFaqs("portfolio"),
+    getSections("portfolio"),
+  ]);
+
+  const banner = {
+    eyebrow: sectionValue(sections, "banner", "eyebrow", "Portfolio"),
+    description: sectionValue(
+      sections,
+      "banner",
+      "description",
+      "A selection of recent case studies — the constraints, the decisions, the outcomes. Many more under NDA; happy to walk through them on a call."
+    ),
+  };
+
+  const audit = {
+    eyebrow: sectionValue(
+      sections,
+      "auditBanner",
+      "eyebrow",
+      "Want to see your business here?"
+    ),
+    description: sectionValue(
+      sections,
+      "auditBanner",
+      "description",
+      "Get a free quote today and join our growing list of happy clients. Most projects start within two weeks."
+    ),
+    ctaLabel: sectionValue(sections, "auditBanner", "ctaLabel", "Start your project"),
+    ctaHref: sectionValue(sections, "auditBanner", "ctaHref", "/contact"),
+  };
+
   return (
     <>
       <PageBanner
-        eyebrow="Portfolio"
+        eyebrow={banner.eyebrow}
         title={
           <>
             Work we&apos;re{" "}
@@ -31,7 +72,7 @@ export default function PortfolioPage() {
             and willing to talk about.
           </>
         }
-        description="A selection of recent case studies — the constraints, the decisions, the outcomes. Many more under NDA; happy to walk through them on a call."
+        description={banner.description}
         breadcrumbs={[{ label: "Portfolio" }]}
         actions={
           <Button asChild size="lg" variant="brand">
@@ -43,21 +84,24 @@ export default function PortfolioPage() {
         }
       />
       <PortfolioSummary />
-      <PortfolioGrid />
+      {/* Suspense is required: PortfolioGrid reads filters from useSearchParams. */}
+      <Suspense fallback={<div className="min-h-[60vh]" />}>
+        <PortfolioGrid items={items} categories={categories} />
+      </Suspense>
       <AuditBanner
-        eyebrow="Want to see your business here?"
+        eyebrow={audit.eyebrow}
         title={
           <>
             Let&apos;s build something{" "}
             <span className="bg-brand/30 px-1.5 -mx-1 rounded">worth showing off.</span>
           </>
         }
-        description="Get a free quote today and join our growing list of happy clients. Most projects start within two weeks."
-        ctaHref="/contact"
-        ctaLabel="Start your project"
+        description={audit.description}
+        ctaHref={audit.ctaHref}
+        ctaLabel={audit.ctaLabel}
       />
       <PortfolioServicesLink />
-      <FaqSection items={portfolioFaqs} title={<>Portfolio questions</>} />
+      <FaqSection items={faqs} title={<>Portfolio questions</>} />
       <Cta />
     </>
   );

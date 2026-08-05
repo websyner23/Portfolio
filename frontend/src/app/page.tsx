@@ -11,13 +11,29 @@ import { CaseResults } from "@/components/sections/case-results";
 import { AuditBanner } from "@/components/sections/audit-banner";
 import { FaqSection } from "@/components/sections/faq";
 import { Cta } from "@/components/sections/cta";
-import { generalFaqs } from "@/data/faqs";
+import { getFaqs, getSections, getServices, sectionValue } from "@/lib/content";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [faqs, services, sections] = await Promise.all([
+    getFaqs("general"),
+    getServices(),
+    getSections("home"),
+  ]);
+
   return (
     <>
       <Hero />
-      <ServicesGrid />
+      <ServicesGrid
+        items={services}
+        eyebrow={sectionValue(sections, "services", "eyebrow", "What we do")}
+        title={sectionValue(sections, "services", "title", "One studio, every layer of the stack")}
+        description={sectionValue(
+          sections,
+          "services",
+          "description",
+          "From a single landing page to a full SaaS platform — we shape strategy, design, and engineering into one accountable engagement."
+        )}
+      />
       <MoreThan />
       <WorldMap />
       <Stats />
@@ -27,7 +43,7 @@ export default function HomePage() {
       <WhyChoose />
       <CaseResults />
       <AuditBanner />
-      <FaqSection items={generalFaqs.slice(0, 6)} />
+      <FaqSection items={faqs.slice(0, 6)} />
       <Cta />
     </>
   );

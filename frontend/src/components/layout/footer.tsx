@@ -10,6 +10,7 @@ import {
 import { Logo } from "@/components/brand/logo";
 import { site } from "@/data/site";
 import { services } from "@/data/services";
+import type { SiteSettings } from "@/lib/content";
 
 const footerLinks = [
   {
@@ -36,15 +37,29 @@ const footerLinks = [
   },
 ];
 
-const socials = [
-  { icon: TwitterIcon, href: site.social.twitter, label: "Twitter" },
-  { icon: LinkedinIcon, href: site.social.linkedin, label: "LinkedIn" },
-  { icon: InstagramIcon, href: site.social.instagram, label: "Instagram" },
-  { icon: DribbbleIcon, href: site.social.dribbble, label: "Dribbble" },
-  { icon: GithubIcon, href: site.social.github, label: "GitHub" },
-];
+const SOCIAL_ICONS = [
+  { icon: TwitterIcon, key: "twitter", label: "Twitter" },
+  { icon: LinkedinIcon, key: "linkedin", label: "LinkedIn" },
+  { icon: InstagramIcon, key: "instagram", label: "Instagram" },
+  { icon: DribbbleIcon, key: "dribbble", label: "Dribbble" },
+  { icon: GithubIcon, key: "github", label: "GitHub" },
+] as const;
 
-export function Footer() {
+export function Footer({ settings }: { settings?: SiteSettings | null }) {
+  // Falls back to the static site data when the API is unavailable.
+  const brand = {
+    name: settings?.brandName ?? site.name,
+    description: settings?.description ?? site.description,
+    email: settings?.email ?? site.email,
+    address: settings?.address ?? site.address,
+    social: (settings?.social ?? site.social) as Record<string, string | undefined>,
+  };
+
+  const socials = SOCIAL_ICONS.map((item) => ({
+    ...item,
+    href: brand.social[item.key],
+  })).filter((item): item is typeof item & { href: string } => Boolean(item.href));
+
   return (
     <footer className="relative border-t border-border bg-secondary/30">
       <div className="container-page py-16 md:py-20">
@@ -52,17 +67,17 @@ export function Footer() {
           <div className="lg:col-span-5">
             <Logo />
             <p className="mt-5 max-w-sm text-muted-foreground leading-relaxed">
-              {site.description}
+              {brand.description}
             </p>
             <div className="mt-8 flex flex-col gap-2 text-sm">
               <a
-                href={`mailto:${site.email}`}
+                href={`mailto:${brand.email}`}
                 className="inline-flex items-center gap-2 hover:text-brand-ink transition-colors"
               >
                 <Mail className="size-4" />
-                {site.email}
+                {brand.email}
               </a>
-              <span className="text-muted-foreground">{site.address.line1} · {site.address.line2}</span>
+              <span className="text-muted-foreground">{brand.address.line1} · {brand.address.line2}</span>
             </div>
             <div className="mt-8 flex items-center gap-3">
               {socials.map(({ icon: Icon, href, label }) => (
@@ -103,7 +118,7 @@ export function Footer() {
 
         <div className="mt-16 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border-t border-border pt-8">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} {site.name}. Built with care, worldwide.
+            © {new Date().getFullYear()} {brand.name}. Built with care, worldwide.
           </p>
           <Link
             href="/contact"

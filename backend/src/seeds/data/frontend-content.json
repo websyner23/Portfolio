@@ -1,0 +1,938 @@
+{
+  "site": {
+    "name": "WebSyner",
+    "tagline": "Digital craft for ambitious teams.",
+    "description": "WebSyner is a digital studio building modern websites, brands, and products for founders, agencies, and growing companies worldwide.",
+    "url": "https://websyner.co",
+    "email": "hello@websyner.co",
+    "phone": "+1 (415) 555-0142",
+    "address": {
+      "line1": "Remote-first studio",
+      "line2": "Serving clients worldwide"
+    },
+    "social": {
+      "twitter": "https://x.com/websyner",
+      "linkedin": "https://www.linkedin.com/company/websyner",
+      "instagram": "https://www.instagram.com/websyner",
+      "dribbble": "https://dribbble.com/websyner",
+      "github": "https://github.com/websyner"
+    },
+    "nav": [
+      {
+        "label": "Home",
+        "href": "/"
+      },
+      {
+        "label": "About",
+        "href": "/about"
+      },
+      {
+        "label": "Services",
+        "href": "/services"
+      },
+      {
+        "label": "Process",
+        "href": "/process"
+      },
+      {
+        "label": "Pricing",
+        "href": "/pricing"
+      },
+      {
+        "label": "Portfolio",
+        "href": "/portfolio"
+      },
+      {
+        "label": "Contact",
+        "href": "/contact"
+      }
+    ]
+  },
+  "services": [
+    {
+      "slug": "web-design",
+      "icon": "Layout",
+      "title": "Web Design & Development",
+      "short": "Strategic, fast, conversion-first sites.",
+      "summary": "We design and build marketing sites and product UIs that load fast, look sharp on every screen, and turn visitors into customers. Built on Next.js with a clean component system your team can maintain long after launch.",
+      "outcomes": [
+        "Higher landing-page conversion",
+        "Improved Core Web Vitals scores",
+        "Reusable design system for future pages",
+        "Editor-friendly CMS your team can actually use"
+      ],
+      "deliverables": [
+        "Brand-aligned visual design in Figma",
+        "Pixel-perfect responsive front-end",
+        "CMS integration (Sanity, Contentful, or custom)",
+        "SEO foundations and analytics wiring",
+        "Performance budget and Lighthouse audit"
+      ],
+      "process": [
+        {
+          "title": "Discovery",
+          "description": "Stakeholder interviews, audit of current site, goal mapping."
+        },
+        {
+          "title": "Strategy",
+          "description": "Information architecture, sitemap, content scaffolds."
+        },
+        {
+          "title": "Design",
+          "description": "Wireframes, high-fidelity mocks, motion direction."
+        },
+        {
+          "title": "Build",
+          "description": "Component-driven development with previews on every change."
+        },
+        {
+          "title": "Launch",
+          "description": "QA across devices, performance pass, deploy."
+        }
+      ],
+      "faqs": [
+        {
+          "q": "Do you work with our existing brand?",
+          "a": "Yes. We can extend an existing identity or refresh it as part of the engagement."
+        },
+        {
+          "q": "How long does a project take?",
+          "a": "Most marketing sites ship in 4–8 weeks. Larger product UIs take 8–14 weeks."
+        },
+        {
+          "q": "Will my team be able to update the site?",
+          "a": "Absolutely. We hand over a CMS and a documented component library."
+        }
+      ],
+      "startingPrice": "$6,800",
+      "timeline": "4–8 weeks",
+      "techHighlights": [
+        "Next.js",
+        "TypeScript",
+        "Tailwind CSS",
+        "Sanity / Contentful"
+      ]
+    },
+    {
+      "slug": "seo-services",
+      "icon": "Search",
+      "title": "SEO & Content Strategy",
+      "short": "Predictable organic growth, not tricks.",
+      "summary": "A full-funnel SEO program built on technical fundamentals, search-intent driven content, and authority signals. We measure what moves revenue, not vanity rankings.",
+      "outcomes": [
+        "Steady growth in qualified organic traffic",
+        "Clear keyword strategy mapped to pipeline",
+        "Resolved technical issues holding rankings back",
+        "Reporting your CFO actually understands"
+      ],
+      "deliverables": [
+        "Technical SEO audit and remediation plan",
+        "Keyword and topic cluster strategy",
+        "Monthly content production and optimization",
+        "Internal linking and authority plan",
+        "Monthly performance reporting"
+      ],
+      "process": [
+        {
+          "title": "Audit",
+          "description": "Crawl, index, and competitor analysis."
+        },
+        {
+          "title": "Strategy",
+          "description": "Pillar topics, target queries, editorial calendar."
+        },
+        {
+          "title": "Production",
+          "description": "Briefs, drafts, on-page optimization."
+        },
+        {
+          "title": "Distribution",
+          "description": "Internal linking, digital PR, refresh cycles."
+        },
+        {
+          "title": "Reporting",
+          "description": "Monthly readouts tied to revenue."
+        }
+      ],
+      "faqs": [
+        {
+          "q": "How fast will I see results?",
+          "a": "Technical wins land in weeks. Content compounds over 3–9 months depending on competition."
+        },
+        {
+          "q": "Do you guarantee rankings?",
+          "a": "No serious agency does. We commit to a transparent process and shared KPIs."
+        },
+        {
+          "q": "Can you work with our writers?",
+          "a": "Yes. We can produce content end-to-end or only do strategy and editing."
+        }
+      ],
+      "startingPrice": "$2,400/mo",
+      "timeline": "Ongoing retainer",
+      "techHighlights": [
+        "Ahrefs",
+        "Search Console",
+        "Screaming Frog",
+        "Looker Studio"
+      ]
+    },
+    {
+      "slug": "logo-branding",
+      "icon": "Sparkles",
+      "title": "Logo & Branding",
+      "short": "Identities that look right at every size.",
+      "summary": "From wordmarks to full brand systems. We build identities that work in a favicon and on a billboard, with a design language your team can extend without us in the room.",
+      "outcomes": [
+        "A distinctive, ownable identity",
+        "Consistent usage across every surface",
+        "Faster design decisions for your team",
+        "Brand guidelines people actually open"
+      ],
+      "deliverables": [
+        "Logo and lockups (primary, secondary, favicon)",
+        "Color, typography, and motion system",
+        "Brand voice and messaging pillars",
+        "Templates for social, deck, and email",
+        "Brand guidelines PDF and Figma library"
+      ],
+      "process": [
+        {
+          "title": "Discover",
+          "description": "Positioning workshop and competitive landscape."
+        },
+        {
+          "title": "Concept",
+          "description": "Three directions explored at full fidelity."
+        },
+        {
+          "title": "Refine",
+          "description": "Iterate on the chosen direction."
+        },
+        {
+          "title": "System",
+          "description": "Extend into a complete brand system."
+        },
+        {
+          "title": "Handover",
+          "description": "Files, guidelines, and a 30-day support window."
+        }
+      ],
+      "faqs": [
+        {
+          "q": "Can you do just a logo?",
+          "a": "We can, but the value compounds quickly when you do at least a basic system."
+        },
+        {
+          "q": "Do you do rebrands?",
+          "a": "Yes. Refreshes and full rebrands are a big chunk of our work."
+        },
+        {
+          "q": "What if we don't love the first concepts?",
+          "a": "We expect feedback. Two structured rounds are built into the engagement."
+        }
+      ],
+      "startingPrice": "$4,500",
+      "timeline": "3–6 weeks",
+      "techHighlights": [
+        "Figma",
+        "Illustrator",
+        "After Effects"
+      ]
+    },
+    {
+      "slug": "custom-software",
+      "icon": "Code2",
+      "title": "Custom Software",
+      "short": "Internal tools, dashboards, and APIs.",
+      "summary": "We build custom web apps for teams that have outgrown spreadsheets and off-the-shelf tools. Cleanly architected, properly tested, and designed for the humans who use them every day.",
+      "outcomes": [
+        "Replace fragile workflows with reliable software",
+        "Cut hours of manual work per week",
+        "A platform you can extend in-house",
+        "Documentation that actually exists"
+      ],
+      "deliverables": [
+        "Architecture and data model",
+        "Designed and accessible user interface",
+        "Auth, permissions, and audit logging",
+        "API surface and integration glue",
+        "Test suite and deployment pipeline"
+      ],
+      "process": [
+        {
+          "title": "Scoping",
+          "description": "Map the workflow, surface the real requirements."
+        },
+        {
+          "title": "Design",
+          "description": "Prototype the interface with real users."
+        },
+        {
+          "title": "Build",
+          "description": "Two-week increments with working previews."
+        },
+        {
+          "title": "Harden",
+          "description": "Test, secure, document."
+        },
+        {
+          "title": "Handover",
+          "description": "Train your team, then stay on call."
+        }
+      ],
+      "faqs": [
+        {
+          "q": "Do you work with our existing engineers?",
+          "a": "Yes. We pair with internal teams or run the build solo, whichever fits."
+        },
+        {
+          "q": "What stack do you use?",
+          "a": "TypeScript end-to-end, Next.js or Node, Postgres, deployed on Vercel or your cloud of choice."
+        },
+        {
+          "q": "Who owns the code?",
+          "a": "You do. Full IP transfer, repo handover, no lock-in."
+        }
+      ],
+      "startingPrice": "$18,000",
+      "timeline": "8–16 weeks",
+      "techHighlights": [
+        "Next.js",
+        "TypeScript",
+        "PostgreSQL",
+        "Vercel / AWS"
+      ]
+    },
+    {
+      "slug": "saas-product",
+      "icon": "Cloud",
+      "title": "SaaS Product Development",
+      "short": "Ship a real product, not a prototype.",
+      "summary": "End-to-end product partnerships for founders. We help you go from validated idea to billed users — with the design taste, engineering rigor, and growth thinking it actually takes.",
+      "outcomes": [
+        "A live, paid product",
+        "A scalable architecture from day one",
+        "Onboarding and retention loops in place",
+        "A team that knows your codebase"
+      ],
+      "deliverables": [
+        "Product strategy and roadmap",
+        "Design system and core UX flows",
+        "Multi-tenant app with billing",
+        "Analytics, experiments, and feature flags",
+        "Marketing site and docs"
+      ],
+      "process": [
+        {
+          "title": "Define",
+          "description": "Sharpen the wedge and pick the first three months of work."
+        },
+        {
+          "title": "Design",
+          "description": "Brand, identity, and core product flows."
+        },
+        {
+          "title": "Build v1",
+          "description": "Smallest thing that delivers the core value."
+        },
+        {
+          "title": "Launch",
+          "description": "Closed beta, then public launch."
+        },
+        {
+          "title": "Iterate",
+          "description": "Weekly shipping based on real usage."
+        }
+      ],
+      "faqs": [
+        {
+          "q": "Do you take equity?",
+          "a": "Sometimes, on a case-by-case basis. We mostly work on cash and SOWs."
+        },
+        {
+          "q": "Will you stay on after launch?",
+          "a": "Most clients keep us as a fractional product team. Optional, never required."
+        },
+        {
+          "q": "What if the idea is still rough?",
+          "a": "We do a paid two-week scoping engagement to sharpen it before committing."
+        }
+      ],
+      "startingPrice": "$28,000",
+      "timeline": "12–20 weeks",
+      "techHighlights": [
+        "Next.js",
+        "TypeScript",
+        "Stripe",
+        "Postgres",
+        "Redis"
+      ]
+    }
+  ],
+  "testimonials": [
+    {
+      "quote": "Our new site shipped in five weeks and pipeline jumped 40% the next quarter. The team felt like an extension of ours.",
+      "name": "Sarah Hollis",
+      "role": "VP Marketing",
+      "company": "Northwind Logistics",
+      "initials": "SH",
+      "rating": 5
+    },
+    {
+      "quote": "Hands down the most thoughtful design partner we've worked with. They asked the questions we should have been asking ourselves.",
+      "name": "Marcus Lee",
+      "role": "Founder",
+      "company": "Atlas Health",
+      "initials": "ML",
+      "rating": 5
+    },
+    {
+      "quote": "We went from a Webflow site that nobody wanted to update to a proper component system the whole team can ship into.",
+      "name": "Elena Rossi",
+      "role": "Head of Brand",
+      "company": "Lumen Studio",
+      "initials": "ER",
+      "rating": 5
+    },
+    {
+      "quote": "The SEO program paid for itself in two months. Real strategy, no fluff, monthly reporting we actually open.",
+      "name": "Daniel Park",
+      "role": "CMO",
+      "company": "Cobalt Outdoors",
+      "initials": "DP",
+      "rating": 5
+    },
+    {
+      "quote": "They built our internal ops tool in eight weeks and saved our team about fifteen hours each per week. ROI was obvious.",
+      "name": "Aisha Patel",
+      "role": "COO",
+      "company": "Beacon Realty",
+      "initials": "AP",
+      "rating": 5
+    },
+    {
+      "quote": "Most agencies sell you a deck. WebSyner sold us an outcome and then delivered it. We're already on engagement two.",
+      "name": "Jonas Weber",
+      "role": "Founder & CEO",
+      "company": "Foreground.ai",
+      "initials": "JW",
+      "rating": 5
+    }
+  ],
+  "team": [
+    {
+      "name": "Ihsan Habib",
+      "role": "Founder & Creative Director",
+      "bio": "Twelve years across agency and product. Spent too long fixing slow Next.js sites and finally started a studio that does it right.",
+      "initials": "IH",
+      "linkedin": "https://www.linkedin.com/in/ihsan-habib"
+    },
+    {
+      "name": "Maya Okafor",
+      "role": "Design Lead",
+      "bio": "Brand systems and motion. Previously at two design-led SaaS companies you'd recognize.",
+      "initials": "MO"
+    },
+    {
+      "name": "Diego Santos",
+      "role": "Engineering Lead",
+      "bio": "TypeScript everywhere. Owns the bar for performance, accessibility, and code quality.",
+      "initials": "DS"
+    },
+    {
+      "name": "Priya Kapoor",
+      "role": "SEO & Content Strategist",
+      "bio": "Built organic channels from zero to seven figures. Allergic to keyword stuffing.",
+      "initials": "PK"
+    },
+    {
+      "name": "Tomás Bauer",
+      "role": "Senior Product Designer",
+      "bio": "Product surfaces, design systems, and the unglamorous edge cases that make software feel good.",
+      "initials": "TB"
+    },
+    {
+      "name": "Aiko Tanaka",
+      "role": "Project Director",
+      "bio": "Keeps every engagement on rails. Former PM at a global e-commerce platform.",
+      "initials": "AT"
+    }
+  ],
+  "pricingPlans": [
+    {
+      "id": "launch",
+      "name": "Launch",
+      "price": "$6,800",
+      "period": "fixed scope",
+      "blurb": "A modern marketing site, shipped in weeks, not quarters.",
+      "features": [
+        "Up to 6 designed pages",
+        "Custom Next.js front-end",
+        "CMS your team can edit",
+        "SEO foundations and analytics",
+        "Performance budget (90+ Lighthouse)",
+        "30 days post-launch support"
+      ],
+      "cta": {
+        "label": "Start a Launch project",
+        "href": "/contact?plan=launch"
+      }
+    },
+    {
+      "id": "growth",
+      "name": "Growth",
+      "price": "$14,800",
+      "period": "fixed scope",
+      "blurb": "A complete brand and site engagement for teams ready to scale.",
+      "features": [
+        "Up to 12 designed pages",
+        "Brand refresh and design system",
+        "Custom Next.js front-end + CMS",
+        "Conversion strategy and A/B tests",
+        "Ongoing performance monitoring",
+        "60 days post-launch support"
+      ],
+      "cta": {
+        "label": "Start a Growth project",
+        "href": "/contact?plan=growth"
+      },
+      "popular": true
+    },
+    {
+      "id": "platform",
+      "name": "Platform",
+      "price": "From $28,000",
+      "period": "scoped engagement",
+      "blurb": "Custom software, SaaS products, and multi-team platforms.",
+      "features": [
+        "Discovery and architecture phase",
+        "Full product UX and UI",
+        "Multi-tenant app with billing",
+        "API surface and integrations",
+        "Test suite and CI/CD",
+        "Quarterly roadmap and reviews"
+      ],
+      "cta": {
+        "label": "Talk about a Platform build",
+        "href": "/contact?plan=platform"
+      }
+    }
+  ],
+  "extras": [
+    {
+      "title": "Brand sprint",
+      "price": "$4,500",
+      "description": "Two-week intensive: positioning, identity, and a launch-ready system."
+    },
+    {
+      "title": "SEO retainer",
+      "price": "$2,400/mo",
+      "description": "Strategy, content, and technical work tied to monthly KPIs."
+    },
+    {
+      "title": "Care plan",
+      "price": "$650/mo",
+      "description": "Hosting, monitoring, security patches, and small improvements."
+    },
+    {
+      "title": "Conversion audit",
+      "price": "$2,200",
+      "description": "Heuristic + analytics review with a prioritized roadmap."
+    },
+    {
+      "title": "Webflow → Next migration",
+      "price": "From $5,800",
+      "description": "Move to a maintainable Next.js codebase without losing SEO."
+    },
+    {
+      "title": "Design system extension",
+      "price": "From $7,500",
+      "description": "Take an existing system from MVP to production-ready library."
+    }
+  ],
+  "compareRows": [
+    {
+      "feature": "Designed pages",
+      "values": [
+        "Up to 6",
+        "Up to 12",
+        "Unlimited"
+      ]
+    },
+    {
+      "feature": "Custom branding",
+      "values": [
+        "Light refresh",
+        "Full refresh",
+        "Full system"
+      ]
+    },
+    {
+      "feature": "CMS integration",
+      "values": [
+        "✓",
+        "✓",
+        "✓"
+      ]
+    },
+    {
+      "feature": "Custom app / dashboards",
+      "values": [
+        "—",
+        "Add-on",
+        "Included"
+      ]
+    },
+    {
+      "feature": "Auth & multi-tenant",
+      "values": [
+        "—",
+        "—",
+        "✓"
+      ]
+    },
+    {
+      "feature": "Analytics & A/B tests",
+      "values": [
+        "Basic",
+        "Advanced",
+        "Custom"
+      ]
+    },
+    {
+      "feature": "Post-launch support",
+      "values": [
+        "30 days",
+        "60 days",
+        "90 days + retainer"
+      ]
+    },
+    {
+      "feature": "Project lead time",
+      "values": [
+        "1–2 wks",
+        "2–3 wks",
+        "3–4 wks"
+      ]
+    },
+    {
+      "feature": "Typical timeline",
+      "values": [
+        "4–8 wks",
+        "6–10 wks",
+        "12–20 wks"
+      ]
+    }
+  ],
+  "generalFaqs": [
+    {
+      "q": "How do engagements typically start?",
+      "a": "We start with a free 30-minute discovery call. If there's a fit, we send a fixed-scope proposal within a week. Once accepted, kickoff is usually within 7–10 days."
+    },
+    {
+      "q": "Do you work with clients outside the US?",
+      "a": "Yes — we are a remote-first studio and work with founders and teams worldwide. Roughly half of our clients are outside North America."
+    },
+    {
+      "q": "What does pricing look like?",
+      "a": "Marketing sites start at $6,800. Product engagements start at $18,000. SEO retainers start at $2,400/month. Every quote is fixed-scope so you know what you're paying for."
+    },
+    {
+      "q": "Who owns the work?",
+      "a": "You do. Full IP transfer is part of every engagement. You get the source files, the repo, and a documented handover — no platform lock-in."
+    },
+    {
+      "q": "Do you work with existing in-house teams?",
+      "a": "Often. We can pair with your engineers and designers, run the work solo, or flex between the two as needed."
+    },
+    {
+      "q": "What happens after launch?",
+      "a": "We offer ongoing care plans for performance, security, and small improvements. Many clients move into a monthly retainer to keep shipping."
+    },
+    {
+      "q": "How fast can you start?",
+      "a": "Typically 1–3 weeks out. We keep capacity tight on purpose so the people on your call are the people doing the work."
+    },
+    {
+      "q": "Can I see references or recent work?",
+      "a": "Yes — our portfolio page has detailed case studies and we're happy to connect you with past clients on request."
+    }
+  ],
+  "processFaqs": [
+    {
+      "q": "How involved will I need to be?",
+      "a": "We need 2–3 hours per week from a single decision-maker. Less and we slow down; more is welcome but not required."
+    },
+    {
+      "q": "What tools do you use to collaborate?",
+      "a": "Figma for design, Linear or Notion for project tracking, Slack for day-to-day, and Loom for async updates."
+    },
+    {
+      "q": "How do revisions work?",
+      "a": "Every phase has two structured revision rounds built in. Beyond that, we scope changes transparently."
+    },
+    {
+      "q": "What if we want to change scope mid-project?",
+      "a": "Happens often. We pause, document the change, and adjust the SOW before resuming. No surprises."
+    },
+    {
+      "q": "Do you provide weekly updates?",
+      "a": "Yes. Async Loom on Friday plus a 30-minute live sync. You always know what shipped and what's next."
+    }
+  ],
+  "pricingFaqs": [
+    {
+      "q": "Are there hidden fees?",
+      "a": "No. Quotes are fixed-scope. The only variable is third-party costs (hosting, fonts, stock) which we surface upfront."
+    },
+    {
+      "q": "Do you offer payment plans?",
+      "a": "Yes. Most engagements split into 30/40/30 across kickoff, mid-project, and launch."
+    },
+    {
+      "q": "Is there a money-back guarantee?",
+      "a": "If we don't ship the first design milestone to your satisfaction, we refund what you've paid, full stop."
+    },
+    {
+      "q": "Can you match a fixed budget?",
+      "a": "Sometimes. We'll be honest about what's realistic at a given budget instead of overpromising."
+    },
+    {
+      "q": "Do you offer discounts for nonprofits?",
+      "a": "Yes — 15% off for registered nonprofits and a sliding scale for early-stage founders."
+    }
+  ],
+  "portfolioFaqs": [
+    {
+      "q": "Can I see live links to these projects?",
+      "a": "For most. A handful are under NDA — happy to walk through them on a call."
+    },
+    {
+      "q": "What industries do you have the most experience in?",
+      "a": "SaaS, professional services, healthcare, and e-commerce in roughly that order."
+    },
+    {
+      "q": "Do you take on small projects?",
+      "a": "Yes — landing pages, brand refreshes, and audits are often great fits."
+    }
+  ],
+  "processSteps": [
+    {
+      "step": "01",
+      "icon": "Compass",
+      "title": "Discover",
+      "duration": "Week 1",
+      "description": "We start by getting deeply familiar with your business, your audience, and the problem we're really solving — not the one stated in a brief.",
+      "bullets": [
+        "Stakeholder interviews",
+        "Audit of current site, brand, and analytics",
+        "Competitor and category landscape",
+        "Goal mapping and KPI definition"
+      ]
+    },
+    {
+      "step": "02",
+      "icon": "PenTool",
+      "title": "Strategy & Design",
+      "duration": "Weeks 2–3",
+      "description": "We translate insights into a sharp design direction — sitemap, wireframes, then high-fidelity, motion-aware visuals.",
+      "bullets": [
+        "Information architecture and content scaffolds",
+        "Design language and motion direction",
+        "High-fidelity Figma mockups",
+        "Two structured revision rounds"
+      ]
+    },
+    {
+      "step": "03",
+      "icon": "Code2",
+      "title": "Build",
+      "duration": "Weeks 3–6",
+      "description": "We build in component-driven sprints with a live preview deployed for every change. You see the work as it grows.",
+      "bullets": [
+        "Type-safe Next.js front-end",
+        "CMS integration your team can run",
+        "Accessibility (WCAG AA) baked in",
+        "Performance budget per page"
+      ]
+    },
+    {
+      "step": "04",
+      "icon": "Rocket",
+      "title": "Launch",
+      "duration": "Week 6+",
+      "description": "We ship with a full QA pass, a performance audit, and a smooth DNS swap. No drama, no downtime.",
+      "bullets": [
+        "Cross-device QA matrix",
+        "SEO and metadata verification",
+        "Lighthouse and Core Web Vitals pass",
+        "Coordinated launch and DNS cutover"
+      ]
+    },
+    {
+      "step": "05",
+      "icon": "LineChart",
+      "title": "Measure",
+      "duration": "Post-launch",
+      "description": "Launch is the start. We track what happened, learn from it, and tune what's already shipped.",
+      "bullets": [
+        "Analytics and event verification",
+        "Heatmaps and session-replay setup",
+        "Conversion baselines and benchmarks",
+        "Monthly performance readouts"
+      ]
+    },
+    {
+      "step": "06",
+      "icon": "HeartHandshake",
+      "title": "Partner",
+      "duration": "Ongoing",
+      "description": "Most clients keep us on as a fractional design and engineering partner. Scoped, lightweight, easy to ramp up or down.",
+      "bullets": [
+        "Quarterly roadmap and goals",
+        "Weekly shipping cadence",
+        "Direct Slack channel",
+        "Quarterly business reviews"
+      ]
+    }
+  ],
+  "afterLaunch": [
+    {
+      "title": "Care plan",
+      "description": "Monitoring, security patches, dependency updates, and small monthly improvements."
+    },
+    {
+      "title": "Growth retainer",
+      "description": "Ongoing design and engineering capacity for landing pages, experiments, and features."
+    },
+    {
+      "title": "Quarterly reviews",
+      "description": "We meet every 90 days to review what shipped, what worked, and what to tackle next."
+    },
+    {
+      "title": "Knowledge transfer",
+      "description": "Documentation, recorded walkthroughs, and an open Slack channel — never a black box."
+    }
+  ],
+  "processSummary": [
+    {
+      "stat": "4–16 wks",
+      "label": "Typical engagement"
+    },
+    {
+      "stat": "2",
+      "label": "Revision rounds per phase"
+    },
+    {
+      "stat": "Weekly",
+      "label": "Shipping cadence"
+    },
+    {
+      "stat": "100%",
+      "label": "Source code ownership"
+    }
+  ],
+  "homeStats": [
+    {
+      "value": "120",
+      "suffix": "+",
+      "label": "Projects shipped",
+      "icon": "Zap"
+    },
+    {
+      "value": "38",
+      "suffix": "",
+      "label": "Countries served",
+      "icon": "Globe2"
+    },
+    {
+      "value": "92",
+      "suffix": "%",
+      "label": "Client retention",
+      "icon": "Users"
+    },
+    {
+      "value": "14",
+      "suffix": "yrs",
+      "label": "Combined craft",
+      "icon": "Award"
+    }
+  ],
+  "websynerValues": [
+    {
+      "title": "Outcomes over deliverables",
+      "description": "A great deck doesn't move the business. We define success in your metrics on day one and ship toward them."
+    },
+    {
+      "title": "Transparent by default",
+      "description": "Live dashboards, weekly Loom updates, fixed-scope quotes. No surprise invoices, ever."
+    },
+    {
+      "title": "Senior, in the room",
+      "description": "The people on your kickoff call do the work. No layered handoffs, no junior teams hidden behind a producer."
+    },
+    {
+      "title": "Built to be handed over",
+      "description": "Documented code, editable CMS, recorded walkthroughs. You own the work and the knowledge."
+    }
+  ],
+  "whyChoose": [
+    {
+      "title": "We work in your stack",
+      "description": "Next.js, TypeScript, Tailwind, modern tooling. Your future engineers will thank us."
+    },
+    {
+      "title": "We design for performance",
+      "description": "90+ Lighthouse is the floor, not the goal. Fast sites convert better — period."
+    },
+    {
+      "title": "We measure what matters",
+      "description": "Pipeline, signups, revenue. We don't celebrate vanity wins on your behalf."
+    },
+    {
+      "title": "We're built to last",
+      "description": "Boutique by design. We turn down work that isn't a fit so the work we take stays excellent."
+    },
+    {
+      "title": "Senior team, every project",
+      "description": "No bait-and-switch. The lead designer and engineer on day one are the same on launch day."
+    },
+    {
+      "title": "No platform lock-in",
+      "description": "You own the code, the brand assets, and the documentation. Leaving us is always easy."
+    }
+  ],
+  "drivers": [
+    {
+      "title": "Curiosity",
+      "description": "We ask the questions clients sometimes haven't thought to ask. The result is sharper work."
+    },
+    {
+      "title": "Craft",
+      "description": "Every detail, from typography to error states, gets the same care. Quality compounds."
+    },
+    {
+      "title": "Candor",
+      "description": "If a feature won't work, we say so. If your timeline is unrealistic, we'll tell you."
+    },
+    {
+      "title": "Care",
+      "description": "We work with people we like, on projects we believe in. It shows up in the output."
+    }
+  ],
+  "industries": [
+    "SaaS",
+    "Healthcare",
+    "Fintech",
+    "Real Estate",
+    "Hospitality",
+    "E-commerce",
+    "Professional Services",
+    "Logistics",
+    "Education",
+    "Outdoor & Lifestyle",
+    "Agencies & Studios",
+    "Non-profits"
+  ]
+}

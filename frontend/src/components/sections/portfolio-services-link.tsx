@@ -4,9 +4,15 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { Section, Container, SectionHeading } from "@/components/ui/section";
-import { services } from "@/data/services";
+import { servicesFallback } from "@/data/services";
+import type { ApiService } from "@/lib/content";
+import { getIcon } from "@/lib/icon-map";
 
-export function PortfolioServicesLink() {
+export function PortfolioServicesLink({
+  items = servicesFallback,
+}: {
+  items?: ApiService[];
+}) {
   return (
     <Section id="explore-services" className="bg-secondary/30 border-y border-border">
       <Container>
@@ -16,8 +22,8 @@ export function PortfolioServicesLink() {
           description="Pick a practice to see what's involved, what's included, and what it costs."
         />
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-          {services.map((s, i) => {
-            const Icon = s.icon;
+          {items.map((s, i) => {
+            const Icon = getIcon(s.icon);
             return (
               <motion.div
                 key={s.slug}
