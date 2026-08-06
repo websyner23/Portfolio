@@ -3,7 +3,7 @@ import config from "../config";
 import { ALL_PERMISSIONS, SUPER_ADMIN_ROLE } from "../app/modules/role/role.constant";
 import { Role } from "../app/modules/role/role.model";
 import { User } from "../app/modules/user/user.model";
-import { seedCms } from "./seedCms";
+import { seedCms, seedDocumentTemplates } from "./seedCms";
 
 /**
  * Idempotent seeder — safe to re-run. Existing documents are updated in place
@@ -105,6 +105,9 @@ async function main() {
 
   console.log("\nWebsite content:");
   await seedCms();
+
+  console.log("\nHR documents:");
+  await seedDocumentTemplates();
 
   console.log("\n✔ Seed complete.\n");
   console.log(`  Admin login → ${config.adminUrl}`);

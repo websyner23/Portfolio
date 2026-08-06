@@ -3,6 +3,9 @@ import {
   FiActivity,
   FiCalendar,
   FiClock,
+  FiDollarSign,
+  FiFileText,
+  FiFolder,
   FiInbox,
   FiGlobe,
   FiGrid,
@@ -25,6 +28,17 @@ const AttendanceDailyPage = lazy(() => import("../pages/hrm/AttendanceDailyPage"
 const AttendanceMonthlyPage = lazy(() => import("../pages/hrm/AttendanceMonthlyPage"));
 const LeavesPage = lazy(() => import("../pages/hrm/LeavesPage"));
 const AttendanceSettingsPage = lazy(() => import("../pages/hrm/AttendanceSettingsPage"));
+const FinanceOverviewPage = lazy(() => import("../pages/finance/FinanceOverviewPage"));
+const AccountsPage = lazy(() => import("../pages/finance/AccountsPage"));
+const TransactionsPage = lazy(() => import("../pages/finance/TransactionsPage"));
+const ReceivablesPage = lazy(() => import("../pages/finance/ReceivablesPage"));
+const PayrollPage = lazy(() => import("../pages/finance/PayrollPage"));
+const TemplatesPage = lazy(() => import("../pages/documents/TemplatesPage"));
+const GeneratePage = lazy(() => import("../pages/documents/GeneratePage"));
+const DocumentHistoryPage = lazy(() => import("../pages/documents/DocumentHistoryPage"));
+const ProjectsPage = lazy(() => import("../pages/projects/ProjectsPage"));
+const ProjectDetailPage = lazy(() => import("../pages/projects/ProjectDetailPage"));
+const NotificationsPage = lazy(() => import("../pages/notifications/NotificationsPage"));
 
 const SiteSettingsPage = lazy(() => import("../pages/cms/SiteSettingsPage"));
 const ThemePage = lazy(() => import("../pages/cms/ThemePage"));
@@ -165,6 +179,84 @@ export const routeConfig: TRouteItem[] = [
     ],
   },
   {
+    path: "/finance",
+    label: "Finance",
+    icon: <FiDollarSign />,
+    permission: [
+      PERMISSIONS.FINANCE_VIEW,
+      PERMISSIONS.FINANCE_MANAGE,
+      PERMISSIONS.PAYROLL_MANAGE,
+    ],
+    children: [
+      {
+        path: "/finance/overview",
+        label: "Overview",
+        element: <FinanceOverviewPage />,
+        permission: [PERMISSIONS.FINANCE_VIEW, PERMISSIONS.FINANCE_MANAGE],
+      },
+      {
+        path: "/finance/transactions",
+        label: "Transactions",
+        element: <TransactionsPage />,
+        permission: [PERMISSIONS.FINANCE_VIEW, PERMISSIONS.FINANCE_MANAGE],
+      },
+      {
+        path: "/finance/receivables",
+        label: "Pending income",
+        element: <ReceivablesPage />,
+        permission: [PERMISSIONS.FINANCE_VIEW, PERMISSIONS.FINANCE_MANAGE],
+      },
+      {
+        path: "/finance/payroll",
+        label: "Salary ledger",
+        element: <PayrollPage />,
+        permission: PERMISSIONS.PAYROLL_MANAGE,
+      },
+      {
+        path: "/finance/accounts",
+        label: "Accounts",
+        element: <AccountsPage />,
+        permission: PERMISSIONS.FINANCE_MANAGE,
+      },
+    ],
+  },
+  {
+    path: "/documents",
+    label: "Documents",
+    icon: <FiFileText />,
+    permission: PERMISSIONS.DOCUMENTS_MANAGE,
+    children: [
+      {
+        path: "/documents/generate",
+        label: "Generate",
+        element: <GeneratePage />,
+      },
+      {
+        path: "/documents/templates",
+        label: "Templates",
+        element: <TemplatesPage />,
+      },
+      {
+        path: "/documents/history",
+        label: "Issued documents",
+        element: <DocumentHistoryPage />,
+      },
+    ],
+  },
+  {
+    path: "/projects",
+    label: "Projects",
+    icon: <FiFolder />,
+    permission: [PERMISSIONS.PROJECTS_VIEW, PERMISSIONS.PROJECTS_MANAGE],
+    element: <ProjectsPage />,
+  },
+  {
+    path: "/projects/:id",
+    permission: [PERMISSIONS.PROJECTS_VIEW, PERMISSIONS.PROJECTS_MANAGE],
+    element: <ProjectDetailPage />,
+    hideInMenu: true,
+  },
+  {
     path: "/users",
     label: "Users",
     icon: <FiUsers />,
@@ -184,6 +276,12 @@ export const routeConfig: TRouteItem[] = [
     icon: <FiActivity />,
     permission: PERMISSIONS.AUDIT_VIEW,
     element: <AuditLogsPage />,
+  },
+  {
+    path: "/notifications",
+    label: "Notifications",
+    element: <NotificationsPage />,
+    hideInMenu: true,
   },
   {
     path: "/profile",

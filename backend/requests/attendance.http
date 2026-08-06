@@ -1,0 +1,190 @@
+@baseUrl = http://localhost:5000/api/v1
+
+### Login
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@websyner.co",
+  "password": "admin12345"
+}
+
+###
+@token = {{login.response.body.$.data.accessToken}}
+
+### --- Employees ---
+
+### List
+# @name employees
+GET {{baseUrl}}/employees
+Authorization: Bearer {{token}}
+
+###
+@employeeId = {{employees.response.body.$.data.0._id}}
+
+### Only active
+GET {{baseUrl}}/employees?isActive=true
+Authorization: Bearer {{token}}
+
+### Search
+GET {{baseUrl}}/employees?searchTerm=shadin
+Authorization: Bearer {{token}}
+
+### Create — omit employeeId to auto-generate (WS-001, WS-002, …).
+### createLogin provisions a punch-panel account and emails a temp password.
+POST {{baseUrl}}/employees
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "fullName": "Jahid Hasan",
+  "email": "jahid@websyner.co",
+  "designation": "Developer",
+  "joinDate": "2026-08-01",
+  "baseSalary": 4000,
+  "perfectBonus": 1000,
+  "createLogin": true
+}
+
+### Update
+PATCH {{baseUrl}}/employees/{{employeeId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "designation": "Senior Developer",
+  "baseSalary": 5000
+}
+
+### Deactivate (history is preserved — this is not a delete)
+DELETE {{baseUrl}}/employees/{{employeeId}}
+Authorization: Bearer {{token}}
+
+### --- Punch panel (self-service) ---
+### Requires a login linked to an employee record.
+
+### What the panel shows on load
+GET {{baseUrl}}/attendance/me/today
+Authorization: Bearer {{token}}
+
+### Clock in
+POST {{baseUrl}}/attendance/punch-in
+Authorization: Bearer {{token}}
+
+### Clock out
+POST {{baseUrl}}/attendance/punch-out
+Authorization: Bearer {{token}}
+
+### --- Reporting ---
+
+### Today's sheet
+GET {{baseUrl}}/attendance/daily
+Authorization: Bearer {{token}}
+
+### A specific shift date
+GET {{baseUrl}}/attendance/daily?date=2026-08-04
+Authorization: Bearer {{token}}
+
+### Monthly report — per employee plus company totals and payroll
+GET {{baseUrl}}/attendance/summary?month=2026-08
+Authorization: Bearer {{token}}
+
+### Raw records for one employee
+GET {{baseUrl}}/attendance/records?employee={{employeeId}}
+Authorization: Bearer {{token}}
+
+### --- Admin corrections ---
+
+### Add a missing record
+# @name record
+POST {{baseUrl}}/attendance/records
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "employee": "{{employeeId}}",
+  "shiftDate": "2026-08-04",
+  "sessions": [
+    { "in": "2026-08-04T16:00:00.000Z", "out": "2026-08-04T19:00:00.000Z" }
+  ],
+  "note": "Forgot to punch in — confirmed by their lead"
+}
+
+### Correct one (times are recalculated from the sessions)
+PATCH {{baseUrl}}/attendance/records/{{record.response.body.$.data._id}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "sessions": [
+    { "in": "2026-08-04T16:00:00.000Z", "out": "2026-08-04T19:30:00.000Z" }
+  ],
+  "note": "Adjusted after checking the handover notes"
+}
+
+### Finalize a day — closes open sessions, marks missing employees absent.
+### Also runs automatically at 06:10 in the company timezone.
+POST {{baseUrl}}/attendance/finalize
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "date": "2026-08-04"
+}
+
+### --- Leave ---
+
+### List
+GET {{baseUrl}}/attendance/leaves
+Authorization: Bearer {{token}}
+
+### Pending only
+GET {{baseUrl}}/attendance/leaves?status=pending
+Authorization: Bearer {{token}}
+
+### Record
+# @name leave
+POST {{baseUrl}}/attendance/leaves
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "employee": "{{employeeId}}",
+  "startDate": "2026-08-17",
+  "endDate": "2026-08-18",
+  "type": "sick",
+  "reason": "Flu"
+}
+
+### Approve — excluded from absences, but still blocks the perfect bonus
+PATCH {{baseUrl}}/attendance/leaves/{{leave.response.body.$.data._id}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "approved"
+}
+
+### --- Settings ---
+
+### Current rules
+GET {{baseUrl}}/attendance/settings
+Authorization: Bearer {{token}}
+
+### Update the shift window and rules
+PATCH {{baseUrl}}/attendance/settings
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "shiftStart": "22:00",
+  "shiftEnd": "01:00",
+  "overnightCutoff": "06:00",
+  "graceMinutes": 10,
+  "requiredDailyMinutes": 180,
+  "optionalWeekdays": [5, 6],
+  "timezone": "Asia/Dhaka",
+  "defaultBaseSalary": 4000,
+  "defaultPerfectBonus": 1000
+}

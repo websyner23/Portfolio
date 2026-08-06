@@ -1,0 +1,141 @@
+@baseUrl = http://localhost:5000/api/v1
+
+### Login
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@websyner.co",
+  "password": "admin12345"
+}
+
+###
+@token = {{login.response.body.$.data.accessToken}}
+
+### --- Templates ---
+
+### List (6 defaults are seeded: offer, appointment, promotion,
+### resignation acceptance, experience certificate, NOC)
+# @name templates
+GET {{baseUrl}}/documents/templates
+Authorization: Bearer {{token}}
+
+###
+@templateId = {{templates.response.body.$.data.0._id}}
+
+### Placeholders the generator fills automatically.
+### Pass ?employee=<id> to see that employee's values as samples.
+GET {{baseUrl}}/documents/placeholders
+Authorization: Bearer {{token}}
+
+### Create a template — `variables` is derived from the body automatically
+POST {{baseUrl}}/documents/templates
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Probation Confirmation",
+  "type": "custom",
+  "description": "Confirms a successful probation period",
+  "contentHtml": "<p>Dear {{employee_name}},</p><p>We're pleased to confirm that you have successfully completed your probation as {{designation}}, effective {{effective_date}}.</p><p>Regards,<br/>{{signatory_name}}</p>"
+}
+
+### Read one
+GET {{baseUrl}}/documents/templates/{{templateId}}
+Authorization: Bearer {{token}}
+
+### Edit — variables are re-derived from the new body
+PATCH {{baseUrl}}/documents/templates/{{templateId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "description": "Updated guidance on when to use this letter"
+}
+
+### Delete (letters already issued from it are unaffected)
+DELETE {{baseUrl}}/documents/templates/{{templateId}}
+Authorization: Bearer {{token}}
+
+### --- Generating ---
+
+### Get an employee id to merge in
+# @name employees
+GET {{baseUrl}}/employees
+Authorization: Bearer {{token}}
+
+###
+@employeeId = {{employees.response.body.$.data.0._id}}
+
+### Preview — employee and company details are filled in automatically.
+### Anything still missing renders as a highlighted [placeholder] marker.
+POST {{baseUrl}}/documents/preview
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "template": "{{templateId}}",
+  "employee": "{{employeeId}}"
+}
+
+### Preview with the remaining fields supplied.
+### Explicit values override auto-filled ones.
+POST {{baseUrl}}/documents/preview
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "template": "{{templateId}}",
+  "employee": "{{employeeId}}",
+  "values": {
+    "working_hours": "10:00 PM – 1:00 AM",
+    "work_location": "Remote",
+    "offer_valid_until": "20 August 2026",
+    "signatory_name": "Jahid Hasan",
+    "signatory_designation": "Founder"
+  }
+}
+
+### Issue it — stores the rendered HTML and assigns a reference number
+POST {{baseUrl}}/documents/generate
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "template": "{{templateId}}",
+  "employee": "{{employeeId}}",
+  "values": {
+    "working_hours": "10:00 PM – 1:00 AM",
+    "work_location": "Remote",
+    "offer_valid_until": "20 August 2026",
+    "signatory_name": "Jahid Hasan",
+    "signatory_designation": "Founder"
+  }
+}
+
+### --- Issued documents ---
+
+### List (the full HTML is omitted from the list for speed)
+# @name issued
+GET {{baseUrl}}/documents/generated?page=1&limit=20
+Authorization: Bearer {{token}}
+
+###
+@documentId = {{issued.response.body.$.data.0._id}}
+
+### Filter by type
+GET {{baseUrl}}/documents/generated?type=offer
+Authorization: Bearer {{token}}
+
+### Search by title, recipient or reference
+GET {{baseUrl}}/documents/generated?searchTerm=shadin
+Authorization: Bearer {{token}}
+
+### Read one, including the stored HTML
+GET {{baseUrl}}/documents/generated/{{documentId}}
+Authorization: Bearer {{token}}
+
+### Delete
+DELETE {{baseUrl}}/documents/generated/{{documentId}}
+Authorization: Bearer {{token}}

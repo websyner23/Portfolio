@@ -1,0 +1,143 @@
+@baseUrl = http://localhost:5000/api/v1
+
+### Login
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@websyner.co",
+  "password": "admin12345"
+}
+
+###
+@token = {{login.response.body.$.data.accessToken}}
+
+### --- Projects ---
+### Managers see everything; everyone else only sees projects they're
+### a member or lead of. The same rule guards the chat.
+
+# @name projects
+GET {{baseUrl}}/projects?page=1&limit=20
+Authorization: Bearer {{token}}
+
+###
+@projectId = {{projects.response.body.$.data.projects.0._id}}
+
+### Filter by status
+GET {{baseUrl}}/projects?status=active
+Authorization: Bearer {{token}}
+
+### Search name, code or client
+GET {{baseUrl}}/projects?searchTerm=northwind
+Authorization: Bearer {{token}}
+
+### Create — the code is generated automatically (PRJ-001, PRJ-002, …)
+POST {{baseUrl}}/projects
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Northwind Rebuild",
+  "client": {
+    "name": "Sarah Hollis",
+    "company": "Northwind Logistics",
+    "email": "sarah@northwind.example"
+  },
+  "description": "Replace the WordPress site with a Next.js front-end.",
+  "status": "active",
+  "priority": "high",
+  "startDate": "2026-08-10",
+  "deadline": "2026-10-31",
+  "budgetAmount": 40000
+}
+
+### Read one (403 if you're not a member)
+GET {{baseUrl}}/projects/{{projectId}}
+Authorization: Bearer {{token}}
+
+### Update — changing the status also posts a note into the project chat
+PATCH {{baseUrl}}/projects/{{projectId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "review"
+}
+
+### Delete (also removes the chat history)
+DELETE {{baseUrl}}/projects/{{projectId}}
+Authorization: Bearer {{token}}
+
+### --- Tasks ---
+### Progress is derived from tasks, so it can't contradict the board.
+
+# @name task
+POST {{baseUrl}}/projects/{{projectId}}/tasks
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Design the homepage",
+  "status": "todo",
+  "dueDate": "2026-08-20"
+}
+
+###
+@taskId = {{task.response.body.$.data.tasks.0._id}}
+
+### Move a task along
+PATCH {{baseUrl}}/projects/{{projectId}}/tasks/{{taskId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "done"
+}
+
+### Remove
+DELETE {{baseUrl}}/projects/{{projectId}}/tasks/{{taskId}}
+Authorization: Bearer {{token}}
+
+### --- Chat ---
+### Messages normally go over the socket; these endpoints load history
+### and provide a REST fallback if the socket is down.
+
+### History, oldest-first
+# @name messages
+GET {{baseUrl}}/projects/{{projectId}}/messages?limit=30
+Authorization: Bearer {{token}}
+
+### Older page, using the cursor from the response above
+GET {{baseUrl}}/projects/{{projectId}}/messages?limit=30&before={{messages.response.body.$.data.nextCursor}}
+Authorization: Bearer {{token}}
+
+### Send (REST fallback)
+POST {{baseUrl}}/projects/{{projectId}}/messages
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "body": "Kickoff notes are in the shared drive."
+}
+
+### Mark everything read (clears the sidebar badge)
+PATCH {{baseUrl}}/projects/{{projectId}}/messages/read
+Authorization: Bearer {{token}}
+
+### --- Socket events (for reference — not runnable from this file) ---
+#
+#   connect      io(SOCKET_URL, { auth: { token } })
+#
+#   emit         project:join    <projectId>   → ack(true|false)
+#                project:leave   <projectId>
+#                message:send    { projectId, body }  → ack({ ok, error? })
+#                message:read    <projectId>
+#                typing          { projectId, typing }
+#
+#   listen       message:new     { projectId, message }
+#                typing          { projectId, userId, name, typing }
+#                project:error   { message }
+#
+# Membership is re-checked on join AND on every send, so a client can't
+# emit into a room it was never allowed to enter.

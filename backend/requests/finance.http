@@ -1,0 +1,210 @@
+@baseUrl = http://localhost:5000/api/v1
+
+### Login
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@websyner.co",
+  "password": "admin12345"
+}
+
+###
+@token = {{login.response.body.$.data.accessToken}}
+
+### --- Overview (the finance dashboard in one call) ---
+
+GET {{baseUrl}}/finance/overview
+Authorization: Bearer {{token}}
+
+### A specific month
+GET {{baseUrl}}/finance/overview?month=2026-08
+Authorization: Bearer {{token}}
+
+### --- Accounts ---
+### Balances are always derived from transactions, never stored.
+
+# @name accounts
+GET {{baseUrl}}/finance/accounts
+Authorization: Bearer {{token}}
+
+###
+@accountId = {{accounts.response.body.$.data.0._id}}
+
+### Create
+POST {{baseUrl}}/finance/accounts
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Business Bank",
+  "type": "bank",
+  "openingBalance": 50000
+}
+
+### Update
+PATCH {{baseUrl}}/finance/accounts/{{accountId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Business Bank — main"
+}
+
+### --- Transactions ---
+
+### List (filters: type, category, from, to, searchTerm)
+GET {{baseUrl}}/finance/transactions?page=1&limit=20
+Authorization: Bearer {{token}}
+
+### Date range
+GET {{baseUrl}}/finance/transactions?from=2026-08-01&to=2026-08-31
+Authorization: Bearer {{token}}
+
+### Salary payments only
+GET {{baseUrl}}/finance/transactions?type=salary
+Authorization: Bearer {{token}}
+
+### Record income
+POST {{baseUrl}}/finance/transactions
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "type": "income",
+  "amount": 25000,
+  "account": "{{accountId}}",
+  "category": "Project income",
+  "date": "2026-08-05",
+  "description": "Northwind milestone 1"
+}
+
+### Record an expense
+POST {{baseUrl}}/finance/transactions
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "type": "expense",
+  "amount": 3000,
+  "account": "{{accountId}}",
+  "category": "Software",
+  "date": "2026-08-06",
+  "description": "Design tooling"
+}
+
+### Transfer between accounts
+POST {{baseUrl}}/finance/transactions
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "type": "transfer",
+  "amount": 5000,
+  "account": "{{accountId}}",
+  "toAccount": "paste-second-account-id",
+  "date": "2026-08-07"
+}
+
+### --- Receivables (pending client income) ---
+
+# @name receivables
+GET {{baseUrl}}/finance/receivables
+Authorization: Bearer {{token}}
+
+###
+@receivableId = {{receivables.response.body.$.data.0._id}}
+
+### Create
+POST {{baseUrl}}/finance/receivables
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Northwind — phase 2",
+  "client": "Northwind Logistics",
+  "amount": 40000,
+  "dueDate": "2026-09-30"
+}
+
+### Record a payment — also books the matching income transaction
+POST {{baseUrl}}/finance/receivables/{{receivableId}}/payments
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "amount": 15000,
+  "date": "2026-08-10",
+  "account": "{{accountId}}"
+}
+
+### Overpaying is rejected
+POST {{baseUrl}}/finance/receivables/{{receivableId}}/payments
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "amount": 999999,
+  "date": "2026-08-10",
+  "account": "{{accountId}}"
+}
+
+### --- Payroll ---
+
+### Build draft payslips from the attendance summary.
+### Safe to re-run: drafts refresh, approved/paid rows are left alone.
+POST {{baseUrl}}/finance/payroll/generate
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "month": "2026-07"
+}
+
+### Review the month
+# @name payroll
+GET {{baseUrl}}/finance/payroll?month=2026-07
+Authorization: Bearer {{token}}
+
+###
+@payrollId = {{payroll.response.body.$.data.records.0._id}}
+
+### Apply an adjustment (net payable is recalculated)
+PATCH {{baseUrl}}/finance/payroll/{{payrollId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "adjustment": -500,
+  "adjustmentNote": "Advance taken in June"
+}
+
+### Approve
+PATCH {{baseUrl}}/finance/payroll/{{payrollId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "approved"
+}
+
+### Pay — marks it paid and books a salary expense
+POST {{baseUrl}}/finance/payroll/{{payrollId}}/pay
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "account": "{{accountId}}",
+  "date": "2026-08-01"
+}
+
+### Paying twice is rejected
+POST {{baseUrl}}/finance/payroll/{{payrollId}}/pay
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "account": "{{accountId}}",
+  "date": "2026-08-01"
+}

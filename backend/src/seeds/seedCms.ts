@@ -312,3 +312,22 @@ export const seedCms = async () => {
   await seedStats();
   await seedSections();
 };
+
+/** Default HR letter templates for the document generator. */
+export const seedDocumentTemplates = async () => {
+  const { DocumentTemplate } = await import("../app/modules/document/document.model");
+  const { extractVariables } = await import(
+    "../app/modules/document/document.utils"
+  );
+  const { defaultDocumentTemplates } = await import("./data/documentTemplates");
+
+  for (const template of defaultDocumentTemplates) {
+    await upsert(
+      DocumentTemplate,
+      { name: template.name },
+      { ...template, variables: extractVariables(template.contentHtml) }
+    );
+  }
+
+  console.log(`  · ${defaultDocumentTemplates.length} document templates`);
+};

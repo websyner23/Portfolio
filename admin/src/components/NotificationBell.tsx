@@ -1,4 +1,4 @@
-import { Badge, Button, Dropdown, Empty, List, Typography } from "antd";
+import { Badge, Button, Dropdown, Empty, List, Space, Typography } from "antd";
 import { formatDistanceToNow } from "date-fns";
 import { FiBell, FiCalendar, FiInbox, FiUserCheck } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
@@ -51,11 +51,20 @@ const NotificationBell = () => {
         }}
       >
         <Typography.Text strong>Notifications</Typography.Text>
-        {unreadCount > 0 && (
-          <Button type="link" size="small" onClick={() => void markAllRead()}>
-            Mark all read
+        <Space size={0}>
+          {unreadCount > 0 && (
+            <Button type="link" size="small" onClick={() => void markAllRead()}>
+              Mark all read
+            </Button>
+          )}
+          <Button
+            type="link"
+            size="small"
+            onClick={() => navigate("/notifications")}
+          >
+            See all
           </Button>
-        )}
+        </Space>
       </div>
 
       <div style={{ maxHeight: 380, overflowY: "auto" }}>

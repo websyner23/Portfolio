@@ -14,15 +14,17 @@ import {
   Typography,
 } from "antd";
 import { useEffect, useState } from "react";
-import { FiEdit2, FiPlus, FiUserX } from "react-icons/fi";
+import { FiEdit2, FiLink2, FiPlus, FiUserX } from "react-icons/fi";
 import { toast } from "sonner";
 import ExportXlsxButton from "../../components/ExportXlsxButton";
 import PageHeader from "../../components/PageHeader";
 import { useTableQuery } from "../../hooks/useTableQuery";
+import LinkLoginModal from "./LinkLoginModal";
 import {
   useCreateEmployeeMutation,
   useDeactivateEmployeeMutation,
   useGetEmployeesQuery,
+  useUnlinkEmployeeUserMutation,
   useUpdateEmployeeMutation,
   type TEmployee,
 } from "../../redux/api/hrmApi";
@@ -33,9 +35,11 @@ const EmployeesPage = () => {
   const [createEmployee, { isLoading: creating }] = useCreateEmployeeMutation();
   const [updateEmployee, { isLoading: updating }] = useUpdateEmployeeMutation();
   const [deactivate] = useDeactivateEmployeeMutation();
+  const [unlinkUser] = useUnlinkEmployeeUserMutation();
 
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<TEmployee | null>(null);
+  const [linking, setLinking] = useState<TEmployee | null>(null);
   const [form] = Form.useForm();
 
   const employees = data?.data ?? [];
@@ -166,11 +170,42 @@ const EmployeesPage = () => {
               render: (v: number) => `৳${v.toLocaleString()}`,
             },
             {
-              title: "Login",
+              title: "Punch panel login",
               dataIndex: "user",
-              width: 90,
-              render: (user?: TEmployee["user"]) =>
-                user ? <Tag color="blue">linked</Tag> : "—",
+              width: 190,
+              render: (user: TEmployee["user"], row: TEmployee) =>
+                user ? (
+                  <Space size={4}>
+                    <Tag color="blue">{user.email}</Tag>
+                    <Popconfirm
+                      title="Unlink this login?"
+                      description="They'll lose punch-panel access. The account itself is kept."
+                      okText="Unlink"
+                      okButtonProps={{ danger: true }}
+                      onConfirm={async () => {
+                        try {
+                          await unlinkUser(row._id).unwrap();
+                          toast.success("Login unlinked");
+                        } catch (err) {
+                          toast.error(
+                            (err as { data?: { message?: string } })?.data
+                              ?.message ?? "Could not unlink"
+                          );
+                        }
+                      }}
+                    >
+                      <Button size="small" type="text" icon={<FiLink2 />} />
+                    </Popconfirm>
+                  </Space>
+                ) : (
+                  <Button
+                    size="small"
+                    icon={<FiLink2 />}
+                    onClick={() => setLinking(row)}
+                  >
+                    Link login
+                  </Button>
+                ),
             },
             {
               title: "Status",
@@ -317,6 +352,9 @@ const EmployeesPage = () => {
           )}
         </Form>
       </Drawer>
+      {linking && (
+        <LinkLoginModal employee={linking} onClose={() => setLinking(null)} />
+      )}
     </div>
   );
 };

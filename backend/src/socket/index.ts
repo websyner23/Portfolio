@@ -4,6 +4,7 @@ import config from "../config";
 import { SUPER_ADMIN_ROLE } from "../app/modules/role/role.constant";
 import { User } from "../app/modules/user/user.model";
 import { verifyToken } from "../app/utils/jwt";
+import { registerProjectChat } from "./projectChat";
 
 export const ROOM_ADMINS = "admins";
 export const roomForUser = (userId: string) => `user:${userId}`;
@@ -68,6 +69,8 @@ export const initSocket = (httpServer: HttpServer): Server => {
     if (user.isSuperAdmin || user.permissions.includes("dashboard.view")) {
       socket.join(ROOM_ADMINS);
     }
+
+    registerProjectChat(io as Server, socket);
 
     socket.on("disconnect", () => {
       // Rooms are cleaned up by socket.io automatically.

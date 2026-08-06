@@ -2,7 +2,11 @@ import request from "supertest";
 import app from "../app";
 import { Attendance, AttendanceSettings } from "../app/modules/attendance/attendance.model";
 import { AttendanceService } from "../app/modules/attendance/attendance.service";
-import { instantAt } from "../app/modules/attendance/attendance.utils";
+import {
+  instantAt,
+  localDateOf,
+  resolveShiftDate,
+} from "../app/modules/attendance/attendance.utils";
 import { Employee } from "../app/modules/employee/employee.model";
 import { ALL_PERMISSIONS, SUPER_ADMIN_ROLE } from "../app/modules/role/role.constant";
 import { Role } from "../app/modules/role/role.model";
@@ -212,6 +216,46 @@ describe("Monthly summary reproduces the HRM sheet's figures", () => {
   });
 });
 
+describe("In-progress days are never counted as absent", () => {
+  it("stops the current month at the last fully-elapsed shift", async () => {
+    const res = await request(app)
+      .get("/api/v1/attendance/summary")
+      .set("Authorization", `Bearer ${token}`);
+
+    const rules = await AttendanceService.getRules();
+    const currentShift = resolveShiftDate(new Date(), rules);
+
+    // Today's shift may still be running, so it must fall outside the window.
+    expect(res.body.data.upTo < currentShift).toBe(true);
+  });
+
+  it("reports no absences for a brand-new employee joining today", async () => {
+    const rules = await AttendanceService.getRules();
+    const todayLocal = localDateOf(new Date(), rules.timezone);
+
+    const created = await request(app)
+      .post("/api/v1/employees")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        fullName: "Fresh Start",
+        email: "fresh@websyner.test",
+        joinDate: todayLocal,
+      });
+
+    const res = await request(app)
+      .get(`/api/v1/attendance/summary?month=${todayLocal.slice(0, 7)}`)
+      .set("Authorization", `Bearer ${token}`);
+
+    const row = res.body.data.rows.find(
+      (r: { employee: { _id: string } }) =>
+        r.employee._id === created.body.data._id
+    );
+
+    expect(row.scheduledDays).toBe(0);
+    expect(row.absentDays).toBe(0);
+  });
+});
+
 describe("Daily sheet and finalization", () => {
   it("shows every active employee for a date", async () => {
     const res = await request(app)
@@ -351,5 +395,220 @@ describe("Punch panel access", () => {
 
     expect(res.status).toBe(400);
     expect(res.body.message).toContain("linked");
+  });
+});
+
+describe("Linking a login to an employee", () => {
+  const PUNCH_PASSWORD = "punchuser12345";
+
+  let employeeRoleId: string;
+  let standaloneUserId: string;
+  let targetEmployeeId: string;
+
+  beforeAll(async () => {
+    const employeeRole = await Role.create({
+      name: "employee",
+      permissions: ["attendance.punch"],
+      isSystem: true,
+    });
+    employeeRoleId = String(employeeRole._id);
+
+    // A login created on its own, the way the Users page makes one.
+    const user = await request(app)
+      .post("/api/v1/users")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        name: "Rakib Hasan",
+        email: "rakib@websyner.test",
+        role: employeeRoleId,
+        password: PUNCH_PASSWORD,
+      });
+    standaloneUserId = user.body.data.user._id;
+
+    // An employee record created without a login.
+    const employee = await request(app)
+      .post("/api/v1/employees")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        fullName: "Rakib Hasan",
+        email: "rakib.employee@websyner.test",
+        joinDate: "2026-07-01",
+      });
+    targetEmployeeId = employee.body.data._id;
+  });
+
+  const punchToken = async () => {
+    const res = await request(app)
+      .post("/api/v1/auth/login")
+      .send({ email: "rakib@websyner.test", password: PUNCH_PASSWORD });
+    return res.body.data.accessToken as string;
+  };
+
+  it("blocks the punch panel before the accounts are linked", async () => {
+    const res = await request(app)
+      .post("/api/v1/attendance/punch-in")
+      .set("Authorization", `Bearer ${await punchToken()}`);
+
+    expect(res.status).toBe(400);
+    expect(res.body.message).toContain("linked");
+  });
+
+  it("offers the unlinked account in the linkable list", async () => {
+    const res = await request(app)
+      .get("/api/v1/employees/linkable-users")
+      .set("Authorization", `Bearer ${token}`);
+
+    const match = res.body.data.find(
+      (u: { _id: string }) => u._id === standaloneUserId
+    );
+    expect(match).toBeDefined();
+    expect(match.canPunch).toBe(true);
+  });
+
+  it("links an existing account and writes both sides of the link", async () => {
+    const res = await request(app)
+      .post(`/api/v1/employees/${targetEmployeeId}/link-user`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ userId: standaloneUserId });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.canPunch).toBe(true);
+
+    // Employee.user drives the admin display…
+    const employee = await Employee.findById(targetEmployeeId);
+    expect(String(employee?.user)).toBe(standaloneUserId);
+
+    // …and User.employee is what the punch panel actually reads.
+    const user = await User.findById(standaloneUserId);
+    expect(String(user?.employee)).toBe(targetEmployeeId);
+  });
+
+  it("lets that user punch in once linked", async () => {
+    const res = await request(app)
+      .post("/api/v1/attendance/punch-in")
+      .set("Authorization", `Bearer ${await punchToken()}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.message).toBe("Punched in");
+  });
+
+  it("drops a linked account out of the linkable list", async () => {
+    const res = await request(app)
+      .get("/api/v1/employees/linkable-users")
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(
+      res.body.data.some((u: { _id: string }) => u._id === standaloneUserId)
+    ).toBe(false);
+  });
+
+  it("refuses to link a second account over an existing one", async () => {
+    const res = await request(app)
+      .post(`/api/v1/employees/${targetEmployeeId}/link-user`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ userId: standaloneUserId });
+
+    expect(res.status).toBe(409);
+    expect(res.body.message).toContain("already has a login");
+  });
+
+  it("refuses to link one account to two employees", async () => {
+    const other = await request(app)
+      .post("/api/v1/employees")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        fullName: "Another Person",
+        email: "another@websyner.test",
+        joinDate: "2026-07-01",
+      });
+
+    const res = await request(app)
+      .post(`/api/v1/employees/${other.body.data._id}/link-user`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ userId: standaloneUserId });
+
+    expect(res.status).toBe(409);
+    expect(res.body.message).toContain("another employee");
+  });
+
+  it("warns when the linked role can't actually punch", async () => {
+    const viewerRole = await Role.create({
+      name: "viewer",
+      permissions: ["dashboard.view"],
+    });
+    const viewer = await request(app)
+      .post("/api/v1/users")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        name: "Viewer Only",
+        email: "viewer@websyner.test",
+        role: String(viewerRole._id),
+        password: "viewer12345",
+      });
+
+    const employee = await request(app)
+      .post("/api/v1/employees")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        fullName: "Viewer Only",
+        email: "viewer.employee@websyner.test",
+        joinDate: "2026-07-01",
+      });
+
+    const res = await request(app)
+      .post(`/api/v1/employees/${employee.body.data._id}/link-user`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ userId: viewer.body.data.user._id });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.canPunch).toBe(false);
+    expect(res.body.message).toContain("attendance.punch");
+  });
+
+  it("unlinks and blocks the punch panel again, keeping the account", async () => {
+    const res = await request(app)
+      .delete(`/api/v1/employees/${targetEmployeeId}/link-user`)
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+
+    // The login still exists — only the link was removed.
+    const user = await User.findById(standaloneUserId);
+    expect(user).not.toBeNull();
+    expect(user?.employee).toBeUndefined();
+
+    const punch = await request(app)
+      .post("/api/v1/attendance/punch-in")
+      .set("Authorization", `Bearer ${await punchToken()}`);
+    expect(punch.status).toBe(400);
+  });
+
+  it("provisions a fresh login when asked to", async () => {
+    const employee = await request(app)
+      .post("/api/v1/employees")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        fullName: "Brand New",
+        email: "brandnew@websyner.test",
+        joinDate: "2026-07-01",
+      });
+
+    const res = await request(app)
+      .post(`/api/v1/employees/${employee.body.data._id}/link-user`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ createLogin: true });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.temporaryPassword).toEqual(expect.any(String));
+    expect(res.body.data.canPunch).toBe(true);
+  });
+
+  it("rejects a request that names neither an account nor a new login", async () => {
+    const res = await request(app)
+      .post(`/api/v1/employees/${targetEmployeeId}/link-user`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({});
+
+    expect(res.status).toBe(400);
   });
 });

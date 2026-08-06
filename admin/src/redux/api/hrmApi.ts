@@ -17,6 +17,14 @@ export type TEmployee = {
   user?: { _id: string; email: string; status: string };
 };
 
+export type TLinkableUser = {
+  _id: string;
+  name: string;
+  email: string;
+  roleName?: string;
+  canPunch: boolean;
+};
+
 export type TAttendanceStatus =
   | "present"
   | "late"
@@ -159,6 +167,27 @@ export const hrmApi = baseApi.injectEndpoints({
       invalidatesTags: ["Employee", "Attendance"],
     }),
 
+    /** Login accounts not yet tied to an employee. */
+    getLinkableUsers: builder.query<TApiResponse<TLinkableUser[]>, void>({
+      query: () => "/employees/linkable-users",
+      providesTags: ["Employee", "User"],
+    }),
+    linkEmployeeUser: builder.mutation<
+      TApiResponse<{ temporaryPassword?: string; canPunch: boolean }>,
+      { id: string; userId?: string; createLogin?: boolean }
+    >({
+      query: ({ id, ...body }) => ({
+        url: `/employees/${id}/link-user`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Employee", "User"],
+    }),
+    unlinkEmployeeUser: builder.mutation<TApiResponse<TEmployee>, string>({
+      query: (id) => ({ url: `/employees/${id}/link-user`, method: "DELETE" }),
+      invalidatesTags: ["Employee", "User"],
+    }),
+
     /* punch panel */
     getMyToday: builder.query<TApiResponse<TMyToday>, void>({
       query: () => "/attendance/me/today",
@@ -262,6 +291,9 @@ export const {
   useCreateEmployeeMutation,
   useUpdateEmployeeMutation,
   useDeactivateEmployeeMutation,
+  useGetLinkableUsersQuery,
+  useLinkEmployeeUserMutation,
+  useUnlinkEmployeeUserMutation,
   useGetMyTodayQuery,
   usePunchInMutation,
   usePunchOutMutation,
