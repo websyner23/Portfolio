@@ -86,7 +86,7 @@ export type ApiTestimonial = {
   company: string;
   initials?: string;
   avatar?: { url?: string };
-  rating: number;
+  rating?: number;
 };
 
 export type ApiTeamMember = {

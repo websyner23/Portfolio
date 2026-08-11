@@ -21,8 +21,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useAppDispatch, useAppSelector, saveDraft, markSubmitted, resetSubmitted } from "@/lib/store";
-import { services } from "@/data/services";
+import { servicesFallback } from "@/data/services";
 import { site } from "@/data/site";
+import type { SiteSettings } from "@/lib/content";
 import { submitLead } from "@/lib/client-api";
 import { cn } from "@/lib/utils";
 
@@ -62,7 +63,19 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
-export function ContactForm() {
+export function ContactForm({
+  services = servicesFallback,
+  settings,
+}: {
+  services?: { slug: string; title: string }[];
+  settings?: SiteSettings | null;
+} = {}) {
+  // Contact details come from Site Settings; the static file is the fallback.
+  const contact = {
+    email: settings?.email ?? site.email,
+    phone: settings?.phone ?? site.phone,
+    address: settings?.address ?? site.address,
+  };
   const params = useSearchParams();
   const dispatch = useAppDispatch();
   const submitted = useAppSelector((s) => s.leads.submitted);
@@ -176,8 +189,8 @@ export function ContactForm() {
                     <h3 className="mt-5 text-2xl font-semibold font-display">Got it — thank you.</h3>
                     <p className="mt-2 max-w-sm text-muted-foreground leading-relaxed">
                       We&apos;ll review the details and reply within one business day. If it&apos;s urgent, email{" "}
-                      <a href={`mailto:${site.email}`} className="text-brand-ink underline">
-                        {site.email}
+                      <a href={`mailto:${contact.email}`} className="text-brand-ink underline">
+                        {contact.email}
                       </a>
                       .
                     </p>
@@ -371,22 +384,22 @@ export function ContactForm() {
               <ContactCard
                 icon={Mail}
                 label="Email"
-                value={site.email}
-                href={`mailto:${site.email}`}
+                value={contact.email}
+                href={`mailto:${contact.email}`}
                 hint="Replies within 1 business day"
               />
               <ContactCard
                 icon={Phone}
                 label="Phone"
-                value={site.phone}
-                href={`tel:${site.phone.replace(/[^+\d]/g, "")}`}
+                value={contact.phone}
+                href={`tel:${contact.phone.replace(/[^+\d]/g, "")}`}
                 hint="Mon–Fri, 9 to 5 (your timezone)"
               />
               <ContactCard
                 icon={MapPin}
                 label="Location"
-                value={`${site.address.line1}`}
-                hint={site.address.line2}
+                value={`${contact.address.line1}`}
+                hint={contact.address.line2}
               />
               <div className="rounded-2xl border border-border bg-secondary/40 p-6">
                 <div className="flex items-center gap-3">

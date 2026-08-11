@@ -2,10 +2,15 @@
 
 import { motion } from "framer-motion";
 import { Section, Container, SectionHeading } from "@/components/ui/section";
-import { afterLaunch } from "@/data/process";
+import { processFallback } from "@/data/process";
+import type { ApiProcessStep } from "@/lib/content";
 import { Sparkles } from "lucide-react";
 
-export function AfterLaunch() {
+export function AfterLaunch({
+  items = processFallback.filter((p) => p.group === "after-launch"),
+}: {
+  items?: ApiProcessStep[];
+} = {}) {
   return (
     <Section id="after-launch" className="bg-secondary/30 border-y border-border">
       <Container>
@@ -16,7 +21,7 @@ export function AfterLaunch() {
         />
 
         <div className="grid gap-4 md:grid-cols-2">
-          {afterLaunch.map((a, i) => (
+          {items.map((a, i) => (
             <motion.div
               key={a.title}
               initial={{ opacity: 0, y: 12 }}

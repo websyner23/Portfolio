@@ -2,10 +2,15 @@
 
 import { motion } from "framer-motion";
 import { Section, Container, SectionHeading } from "@/components/ui/section";
-import { industries } from "@/data/stats";
+import { statsFallback } from "@/data/stats";
+import type { ApiStat } from "@/lib/content";
 import { Badge } from "@/components/ui/badge";
 
-export function Industries() {
+export function Industries({
+  items = statsFallback.filter((s) => s.group === "industries"),
+}: {
+  items?: ApiStat[];
+} = {}) {
   return (
     <Section id="industries" className="bg-secondary/30 border-y border-border">
       <Container>
@@ -21,7 +26,9 @@ export function Industries() {
           transition={{ duration: 0.4 }}
           className="flex flex-wrap justify-center gap-3"
         >
-          {industries.map((i) => (
+          {items.map((entry) => {
+            const i = entry.label ?? "";
+            return (
             <Badge
               key={i}
               variant="outline"
@@ -29,7 +36,8 @@ export function Industries() {
             >
               {i}
             </Badge>
-          ))}
+            );
+          })}
         </motion.div>
       </Container>
     </Section>

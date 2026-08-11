@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/section";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { services } from "@/data/services";
+import { servicesFallback } from "@/data/services";
 import { submitLead } from "@/lib/client-api";
 
 const quoteSchema = z.object({
@@ -22,7 +22,11 @@ const quoteSchema = z.object({
 });
 type QuoteValues = z.infer<typeof quoteSchema>;
 
-export function Hero() {
+export function Hero({
+  services = servicesFallback,
+}: {
+  services?: { slug: string; title: string }[];
+} = {}) {
   return (
     <section className="relative overflow-hidden pt-12 pb-24 md:pt-16 md:pb-28">
       <div className="pointer-events-none absolute inset-0 bg-grid mask-fade-edges opacity-50" aria-hidden />
@@ -80,7 +84,7 @@ export function Hero() {
             className="lg:col-span-5"
             id="hero-quote"
           >
-            <QuoteForm />
+            <QuoteForm services={services} />
           </motion.div>
         </div>
       </Container>
@@ -88,7 +92,11 @@ export function Hero() {
   );
 }
 
-function QuoteForm() {
+function QuoteForm({
+  services,
+}: {
+  services: { slug: string; title: string }[];
+}) {
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const {

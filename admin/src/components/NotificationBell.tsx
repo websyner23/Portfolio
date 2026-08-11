@@ -1,5 +1,15 @@
-import { Badge, Button, Dropdown, Empty, List, Space, Typography } from "antd";
+import {
+  Badge,
+  Button,
+  Empty,
+  List,
+  Popover,
+  Space,
+  theme as antdTheme,
+  Typography,
+} from "antd";
 import { formatDistanceToNow } from "date-fns";
+import { useState } from "react";
 import { FiBell, FiCalendar, FiInbox, FiUserCheck } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import {
@@ -18,6 +28,12 @@ const iconFor = (type: string) => {
 
 const NotificationBell = () => {
   const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
+  // Theme tokens rather than CSS variables: antd 5 uses CSS-in-JS by default,
+  // so `var(--ant-*)` isn't defined and a hardcoded panel goes white-on-white
+  // in dark mode.
+  const { token } = antdTheme.useToken();
+
   const { data } = useGetNotificationsQuery();
   const [markRead] = useMarkNotificationReadMutation();
   const [markAllRead] = useMarkAllNotificationsReadMutation();
@@ -25,32 +41,27 @@ const NotificationBell = () => {
   const items = data?.data?.items ?? [];
   const unreadCount = data?.data?.unreadCount ?? 0;
 
-  const open = (notification: TNotification) => {
+  const openItem = (notification: TNotification) => {
     if (!notification.isRead) void markRead(notification._id);
+    setOpen(false);
     if (notification.link) navigate(notification.link);
   };
 
   const panel = (
-    <div
-      style={{
-        width: 360,
-        maxWidth: "90vw",
-        background: "var(--ant-color-bg-elevated, #fff)",
-        borderRadius: 10,
-        boxShadow: "0 6px 24px rgba(0,0,0,.18)",
-        overflow: "hidden",
-      }}
-    >
+    <div style={{ width: 380, maxWidth: "88vw" }}>
       <div
         style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "10px 14px",
-          borderBottom: "1px solid rgba(128,128,128,.2)",
+          paddingBottom: 8,
+          marginBottom: 4,
+          borderBottom: `1px solid ${token.colorBorderSecondary}`,
         }}
       >
-        <Typography.Text strong>Notifications</Typography.Text>
+        <Typography.Text strong>
+          Notifications{unreadCount > 0 ? ` (${unreadCount})` : ""}
+        </Typography.Text>
         <Space size={0}>
           {unreadCount > 0 && (
             <Button type="link" size="small" onClick={() => void markAllRead()}>
@@ -60,35 +71,46 @@ const NotificationBell = () => {
           <Button
             type="link"
             size="small"
-            onClick={() => navigate("/notifications")}
+            onClick={() => {
+              setOpen(false);
+              navigate("/notifications");
+            }}
           >
             See all
           </Button>
         </Space>
       </div>
 
-      <div style={{ maxHeight: 380, overflowY: "auto" }}>
+      <div style={{ maxHeight: 400, overflowY: "auto", margin: "0 -12px" }}>
         {items.length === 0 ? (
           <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}
             description="Nothing yet"
-            style={{ padding: 24 }}
+            style={{ padding: "20px 0" }}
           />
         ) : (
           <List
             dataSource={items}
             renderItem={(item) => (
               <List.Item
-                onClick={() => open(item)}
+                onClick={() => openItem(item)}
                 style={{
                   cursor: "pointer",
-                  padding: "10px 14px",
-                  background: item.isRead ? undefined : "rgba(15,205,161,.07)",
+                  padding: "10px 12px",
+                  background: item.isRead ? undefined : token.colorPrimaryBg,
+                  borderRadius: 6,
                 }}
               >
                 <List.Item.Meta
                   avatar={
-                    <span style={{ fontSize: 16, opacity: 0.7 }}>
+                    <span
+                      style={{
+                        fontSize: 16,
+                        color: token.colorTextSecondary,
+                        display: "inline-flex",
+                        marginTop: 2,
+                      }}
+                    >
                       {iconFor(item.type)}
                     </span>
                   }
@@ -128,11 +150,20 @@ const NotificationBell = () => {
   );
 
   return (
-    <Dropdown dropdownRender={() => panel} trigger={["click"]} placement="bottomRight">
+    // Popover supplies its own themed surface, so there's nothing to style by
+    // hand — and it avoids Dropdown's deprecated `dropdownRender`.
+    <Popover
+      content={panel}
+      trigger="click"
+      placement="bottomRight"
+      open={open}
+      onOpenChange={setOpen}
+      styles={{ body: { padding: 12 } }}
+    >
       <Badge count={unreadCount} size="small" offset={[-2, 2]}>
         <Button type="text" icon={<FiBell size={18} />} aria-label="Notifications" />
       </Badge>
-    </Dropdown>
+    </Popover>
   );
 };
 

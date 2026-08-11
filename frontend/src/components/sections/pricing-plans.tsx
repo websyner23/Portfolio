@@ -5,17 +5,22 @@ import { motion } from "framer-motion";
 import { Check, Sparkles } from "lucide-react";
 import { Section, Container } from "@/components/ui/section";
 import { Button } from "@/components/ui/button";
-import { pricingPlans } from "@/data/pricing";
+import { pricingFallback } from "@/data/pricing";
+import type { ApiPricing } from "@/lib/content";
 import { cn } from "@/lib/utils";
 
-export function PricingPlans() {
+export function PricingPlans({
+  items = pricingFallback.plans,
+}: {
+  items?: ApiPricing["plans"];
+} = {}) {
   return (
     <Section id="plans">
       <Container>
         <div className="grid gap-5 md:grid-cols-3">
-          {pricingPlans.map((p, i) => (
+          {items.map((p, i) => (
             <motion.div
-              key={p.id}
+              key={p.planId}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
@@ -57,7 +62,7 @@ export function PricingPlans() {
                 ))}
               </ul>
               <Button asChild size="lg" variant={p.popular ? "brand" : "outline"} className="mt-8 w-full">
-                <Link href={p.cta.href}>{p.cta.label}</Link>
+                <Link href={p.cta?.href ?? "/contact"}>{p.cta?.label ?? "Get started"}</Link>
               </Button>
             </motion.div>
           ))}

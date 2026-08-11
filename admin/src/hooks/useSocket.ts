@@ -55,10 +55,25 @@ export const useSocket = () => {
       });
     };
 
+    /**
+     * Any successful write anywhere in the API broadcasts the cache tags it
+     * touched, so open tables refresh themselves without a reload.
+     */
+    const onDataChanged = (payload: { resource: string }) => {
+      if (!payload?.resource) return;
+      dispatch(
+        baseApi.util.invalidateTags([
+          payload.resource as Parameters<typeof baseApi.util.invalidateTags>[0][number],
+        ])
+      );
+    };
+
     socket.on("notification:new", onNotification);
+    socket.on("data:changed", onDataChanged);
 
     return () => {
       socket.off("notification:new", onNotification);
+      socket.off("data:changed", onDataChanged);
     };
   }, [token, user, dispatch, navigate]);
 

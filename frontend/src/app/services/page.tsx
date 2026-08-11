@@ -7,7 +7,13 @@ import { Industries } from "@/components/sections/industries";
 import { OurApproach } from "@/components/sections/our-approach";
 import { Cta } from "@/components/sections/cta";
 import { Button } from "@/components/ui/button";
-import { getSections, getServices, sectionValue } from "@/lib/content";
+import {
+  getSections,
+  getServices,
+  getStats,
+  sectionValue,
+  statsByGroup,
+} from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Services",
@@ -16,9 +22,10 @@ export const metadata: Metadata = {
 };
 
 export default async function ServicesPage() {
-  const [services, sections] = await Promise.all([
+  const [services, sections, stats] = await Promise.all([
     getServices(),
     getSections("services"),
+    getStats(),
   ]);
 
   return (
@@ -51,7 +58,7 @@ export default async function ServicesPage() {
         }
       />
       <ServicesDetailed items={services} />
-      <Industries />
+      <Industries items={statsByGroup(stats, "industries")} />
       <OurApproach />
       <Cta />
     </>

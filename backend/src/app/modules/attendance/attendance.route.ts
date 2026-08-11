@@ -99,6 +99,57 @@ router.post(
   })
 );
 
+router.post(
+  "/break/start",
+  auth("attendance.punch"),
+  catchAsync(async (req, res) => {
+    const employeeId = requireLinkedEmployee(req.user.employee);
+    const record = await AttendanceService.startBreak(
+      employeeId,
+      req.body?.reason
+    );
+
+    recordAudit(req, {
+      user: req.user._id,
+      action: "attendance.break-start",
+      module: "attendance",
+      targetId: String(record._id),
+      description: `${req.user.name} started a break (${record.shiftDate})`,
+    });
+    emitTo(ROOM_ADMINS, "attendance:update", { shiftDate: record.shiftDate });
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      message: "Break started — the clock is paused",
+      data: record,
+    });
+  })
+);
+
+router.post(
+  "/break/end",
+  auth("attendance.punch"),
+  catchAsync(async (req, res) => {
+    const employeeId = requireLinkedEmployee(req.user.employee);
+    const record = await AttendanceService.endBreak(employeeId);
+
+    recordAudit(req, {
+      user: req.user._id,
+      action: "attendance.break-end",
+      module: "attendance",
+      targetId: String(record._id),
+      description: `${req.user.name} ended a break (${record.shiftDate})`,
+    });
+    emitTo(ROOM_ADMINS, "attendance:update", { shiftDate: record.shiftDate });
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      message: "Break ended — back on the clock",
+      data: record,
+    });
+  })
+);
+
 /* ------------------------------- Reporting ------------------------------- */
 
 router.get(

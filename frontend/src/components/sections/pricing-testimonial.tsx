@@ -3,10 +3,15 @@
 import { motion } from "framer-motion";
 import { Star } from "lucide-react";
 import { Section, Container } from "@/components/ui/section";
-import { testimonials } from "@/data/testimonials";
+import { testimonialsFallback } from "@/data/testimonials";
+import type { ApiTestimonial } from "@/lib/content";
 
-export function PricingTestimonial() {
-  const t = testimonials[0];
+export function PricingTestimonial({
+  items = testimonialsFallback,
+}: {
+  items?: ApiTestimonial[];
+} = {}) {
+  const t = items[0];
   return (
     <Section className="py-0" bleed>
       <div className="relative overflow-hidden bg-brand text-brand-foreground">

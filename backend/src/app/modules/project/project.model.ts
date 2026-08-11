@@ -49,6 +49,8 @@ const projectSchema = new Schema(
     tags: { type: [String], default: [] },
     // Publish a finished project to the public portfolio.
     portfolioItem: { type: Schema.Types.ObjectId, ref: "Portfolio" },
+    // Projects are archived rather than deleted so their chat history survives.
+    archivedAt: { type: Date },
     createdBy: { type: Schema.Types.ObjectId, ref: "User" },
   },
   { timestamps: true }

@@ -86,6 +86,16 @@ const updateUser = async (id: string, payload: Partial<TUser>) => {
     runValidators: true,
   }).populate("role", "name permissions");
 
+  // An employee record takes its name and email from the login account, so
+  // keep the copy in step rather than letting the two drift apart.
+  if (updated?.employee && (payload.name || payload.email)) {
+    const { Employee } = await import("../employee/employee.model");
+    await Employee.findByIdAndUpdate(updated.employee, {
+      ...(payload.name ? { fullName: payload.name } : {}),
+      ...(payload.email ? { email: payload.email } : {}),
+    });
+  }
+
   return updated;
 };
 

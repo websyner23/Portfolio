@@ -330,18 +330,64 @@ describe("Project chat", () => {
   });
 });
 
-describe("Deleting a project", () => {
-  it("removes its chat history too", async () => {
+describe("Archiving a project", () => {
+  it("keeps the chat history rather than destroying it", async () => {
+    const before = await request(app)
+      .get(`/api/v1/projects/${projectId}/messages?limit=100`)
+      .set("Authorization", `Bearer ${managerToken}`);
+    const countBefore = before.body.data.messages.length;
+    expect(countBefore).toBeGreaterThan(0);
+
     const res = await request(app)
       .delete(`/api/v1/projects/${projectId}`)
       .set("Authorization", `Bearer ${managerToken}`);
 
     expect(res.status).toBe(200);
+    expect(res.body.message).toContain("preserved");
 
-    const messages = await request(app)
-      .get(`/api/v1/projects/${projectId}/messages`)
+    // Conversations are a record of what was decided — losing them with the
+    // project would destroy history nobody can recover.
+    const after = await request(app)
+      .get(`/api/v1/projects/${projectId}/messages?limit=100`)
       .set("Authorization", `Bearer ${managerToken}`);
 
-    expect(messages.body.data.messages).toHaveLength(0);
+    expect(after.body.data.messages).toHaveLength(countBefore);
+  });
+
+  it("hides the archived project from the default list", async () => {
+    const res = await request(app)
+      .get("/api/v1/projects")
+      .set("Authorization", `Bearer ${managerToken}`);
+
+    expect(
+      res.body.data.projects.some((p: { _id: string }) => p._id === projectId)
+    ).toBe(false);
+  });
+
+  it("still returns it when archived ones are asked for", async () => {
+    const res = await request(app)
+      .get("/api/v1/projects?archived=true")
+      .set("Authorization", `Bearer ${managerToken}`);
+
+    expect(
+      res.body.data.projects.some((p: { _id: string }) => p._id === projectId)
+    ).toBe(true);
+  });
+
+  it("restores an archived project", async () => {
+    const res = await request(app)
+      .post(`/api/v1/projects/${projectId}/restore`)
+      .set("Authorization", `Bearer ${managerToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe("active");
+
+    const list = await request(app)
+      .get("/api/v1/projects")
+      .set("Authorization", `Bearer ${managerToken}`);
+
+    expect(
+      list.body.data.projects.some((p: { _id: string }) => p._id === projectId)
+    ).toBe(true);
   });
 });

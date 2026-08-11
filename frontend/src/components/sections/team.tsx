@@ -3,9 +3,14 @@
 import { motion } from "framer-motion";
 import { LinkedinIcon } from "@/components/brand/social-icons";
 import { Section, Container, SectionHeading } from "@/components/ui/section";
-import { team } from "@/data/team";
+import { teamFallback } from "@/data/team";
+import type { ApiTeamMember } from "@/lib/content";
 
-export function Team() {
+export function Team({
+  items = teamFallback,
+}: {
+  items?: ApiTeamMember[];
+} = {}) {
   return (
     <Section id="team">
       <Container>
@@ -16,7 +21,7 @@ export function Team() {
         />
 
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {team.map((m, i) => (
+          {items.map((m, i) => (
             <motion.article
               key={m.name}
               initial={{ opacity: 0, y: 14 }}

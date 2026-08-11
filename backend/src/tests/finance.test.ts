@@ -238,12 +238,27 @@ describe("Payroll", () => {
   let month: string;
 
   beforeAll(async () => {
+    // Employees are created from a login account, so provision one first.
+    const employeeRole = await Role.create({
+      name: "employee",
+      permissions: ["attendance.punch"],
+      isSystem: true,
+    });
+    const user = await request(app)
+      .post("/api/v1/users")
+      .set(auth())
+      .send({
+        name: "Payroll Person",
+        email: "payroll.person@websyner.test",
+        role: String(employeeRole._id),
+        password: "payroll12345",
+      });
+
     const employee = await request(app)
       .post("/api/v1/employees")
       .set(auth())
       .send({
-        fullName: "Payroll Person",
-        email: "payroll.person@websyner.test",
+        user: user.body.data.user._id,
         joinDate: "2026-07-01",
         lastWorkingDate: "2026-07-02",
       });

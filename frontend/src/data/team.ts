@@ -51,4 +51,6 @@ export const team: TeamMember[] = [
 export const teamFallback = team.map((member, i) => ({
   ...member,
   _id: `${member.name}-${i}`,
+  // The API stores images as an object; the static file has a bare URL.
+  image: member.image ? { url: member.image } : undefined,
 }));

@@ -2,9 +2,14 @@
 
 import { motion } from "framer-motion";
 import { Section, Container, SectionHeading } from "@/components/ui/section";
-import { drivers } from "@/data/stats";
+import { statsFallback } from "@/data/stats";
+import type { ApiStat } from "@/lib/content";
 
-export function Drivers() {
+export function Drivers({
+  items = statsFallback.filter((s) => s.group === "drivers"),
+}: {
+  items?: ApiStat[];
+} = {}) {
   return (
     <Section id="drivers" className="bg-secondary/30 border-y border-border">
       <Container>
@@ -15,9 +20,9 @@ export function Drivers() {
         />
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {drivers.map((d, i) => (
+          {items.map((d, i) => (
             <motion.div
-              key={d.title}
+              key={d.title ?? d._id}
               initial={{ opacity: 0, y: 14 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
@@ -25,7 +30,7 @@ export function Drivers() {
               className="rounded-2xl border border-border bg-card p-7 md:p-8"
             >
               <div className="text-5xl md:text-6xl font-semibold font-display text-brand-ink">
-                {d.title.charAt(0)}
+                {(d.title ?? "").charAt(0)}
               </div>
               <h3 className="mt-4 text-lg font-semibold font-display">{d.title}</h3>
               <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{d.description}</p>

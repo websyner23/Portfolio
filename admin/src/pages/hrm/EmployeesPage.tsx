@@ -1,4 +1,5 @@
 import {
+  Alert,
   Button,
   Card,
   Drawer,
@@ -24,9 +25,11 @@ import {
   useCreateEmployeeMutation,
   useDeactivateEmployeeMutation,
   useGetEmployeesQuery,
+  useGetLinkableUsersQuery,
   useUnlinkEmployeeUserMutation,
   useUpdateEmployeeMutation,
   type TEmployee,
+  type TLinkableUser,
 } from "../../redux/api/hrmApi";
 
 const EmployeesPage = () => {
@@ -36,13 +39,17 @@ const EmployeesPage = () => {
   const [updateEmployee, { isLoading: updating }] = useUpdateEmployeeMutation();
   const [deactivate] = useDeactivateEmployeeMutation();
   const [unlinkUser] = useUnlinkEmployeeUserMutation();
+  const { data: linkableRes, isFetching: loadingUsers } =
+    useGetLinkableUsersQuery();
 
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<TEmployee | null>(null);
   const [linking, setLinking] = useState<TEmployee | null>(null);
+  const [selectedUser, setSelectedUser] = useState<TLinkableUser | null>(null);
   const [form] = Form.useForm();
 
   const employees = data?.data ?? [];
+  const linkableUsers = linkableRes?.data ?? [];
 
   useEffect(() => {
     if (!open) return;
@@ -50,23 +57,21 @@ const EmployeesPage = () => {
       form.setFieldsValue(editing);
     } else {
       form.resetFields();
-      form.setFieldsValue({ isActive: true, createLogin: true });
+      setSelectedUser(null);
+      form.setFieldsValue({ isActive: true });
     }
   }, [open, editing, form]);
 
   const onSubmit = async (values: Record<string, unknown>) => {
     try {
       if (editing) {
-        const { createLogin, ...body } = values;
+        // `user` is fixed at creation — name and email follow the account.
+        const { user, fullName, email, ...body } = values;
         await updateEmployee({ id: editing._id, body }).unwrap();
         toast.success("Employee updated");
       } else {
-        await createEmployee(values).unwrap();
-        toast.success(
-          values.createLogin
-            ? "Employee added — login credentials emailed"
-            : "Employee added"
-        );
+        const res = await createEmployee(values).unwrap();
+        toast.success(res.message ?? "Employee added");
       }
       setOpen(false);
     } catch (err) {
@@ -276,23 +281,62 @@ const EmployeesPage = () => {
         }
       >
         <Form form={form} layout="vertical" onFinish={onSubmit}>
-          <Form.Item
-            name="fullName"
-            label="Full name"
-            rules={[{ required: true, message: "Name is required" }]}
-          >
-            <Input placeholder="Jane Doe" />
-          </Form.Item>
-          <Form.Item
-            name="email"
-            label="Email"
-            rules={[
-              { required: true, message: "Email is required" },
-              { type: "email", message: "Enter a valid email" },
-            ]}
-          >
-            <Input placeholder="jane@websyner.co" />
-          </Form.Item>
+          {editing ? (
+            // Name and email belong to the login account — editing them here
+            // would just let the two drift apart.
+            <Alert
+              type="info"
+              showIcon
+              style={{ marginBottom: 16 }}
+              message={`${editing.fullName} · ${editing.email}`}
+              description="Name and email come from the linked login. Change them under Users and they update here automatically."
+            />
+          ) : (
+            <>
+              <Alert
+                type="info"
+                showIcon
+                style={{ marginBottom: 16 }}
+                message="An employee is created from an existing login"
+                description="Their name and email come from that account, and the link gives them punch-panel access straight away. Create the user first under Users if they don't have one yet."
+              />
+              <Form.Item
+                name="user"
+                label="Login account"
+                rules={[{ required: true, message: "Pick the user this record is for" }]}
+              >
+                <Select
+                  placeholder={
+                    linkableUsers.length
+                      ? "Pick a user"
+                      : "Every user already has an employee record"
+                  }
+                  loading={loadingUsers}
+                  showSearch
+                  optionFilterProp="label"
+                  options={linkableUsers.map((u) => ({
+                    value: u._id,
+                    label: `${u.name} — ${u.email}`,
+                  }))}
+                  onChange={(value) => {
+                    const picked = linkableUsers.find((u) => u._id === value);
+                    setSelectedUser(picked ?? null);
+                  }}
+                />
+              </Form.Item>
+
+              {selectedUser && !selectedUser.canPunch && (
+                <Alert
+                  type="warning"
+                  showIcon
+                  style={{ marginBottom: 16 }}
+                  message={`The "${selectedUser.roleName}" role can't clock in`}
+                  description='Add the "attendance.punch" permission to that role under Roles & Permissions, or they won’t be able to use the punch panel.'
+                />
+              )}
+            </>
+          )}
+
           <Form.Item
             name="employeeId"
             label="Employee ID"

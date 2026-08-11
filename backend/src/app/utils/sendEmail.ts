@@ -11,6 +11,9 @@ type TMailPayload = {
 let transporter: nodemailer.Transporter | null = null;
 
 const getTransporter = () => {
+  // Never open a real SMTP connection from the test suite — it would send mail
+  // to real inboxes and stall every test that creates a user or a booking.
+  if (config.env === "test" || process.env.NODE_ENV === "test") return null;
   if (!config.smtp.host || !config.smtp.user) return null;
   if (!transporter) {
     transporter = nodemailer.createTransport({

@@ -56,6 +56,17 @@ const attendanceSchema = new Schema(
         autoClosed: { type: Boolean, default: false },
       },
     ],
+    // Breaks sit inside a session and are subtracted from worked time.
+    breaks: [
+      {
+        _id: false,
+        start: { type: Date, required: true },
+        end: { type: Date },
+        reason: { type: String, default: "" },
+        autoClosed: { type: Boolean, default: false },
+      },
+    ],
+    breakMinutes: { type: Number, default: 0 },
     workedMinutes: { type: Number, default: 0 },
     lateMinutes: { type: Number, default: 0 },
     status: {

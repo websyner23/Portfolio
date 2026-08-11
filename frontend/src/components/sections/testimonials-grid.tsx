@@ -3,13 +3,15 @@
 import { motion } from "framer-motion";
 import { Quote, Star } from "lucide-react";
 import { Section, Container, SectionHeading } from "@/components/ui/section";
-import { testimonials, type Testimonial } from "@/data/testimonials";
+import { testimonialsFallback } from "@/data/testimonials";
+import type { ApiTestimonial } from "@/lib/content";
 
 type Props = {
   eyebrow?: string;
   title?: React.ReactNode;
   description?: string;
   count?: number;
+  items?: ApiTestimonial[];
 };
 
 export function TestimonialsGrid({
@@ -17,8 +19,9 @@ export function TestimonialsGrid({
   title = <>What clients say after we ship</>,
   description = "Six months after launch is when the real grade comes in. Here's what teams say once the dust settles.",
   count = 3,
+  items: source = testimonialsFallback,
 }: Props) {
-  const items = testimonials.slice(0, count);
+  const items = source.slice(0, count);
   return (
     <Section id="testimonials">
       <Container>
@@ -33,7 +36,7 @@ export function TestimonialsGrid({
   );
 }
 
-function TestimonialCard({ t, delay = 0 }: { t: Testimonial; delay?: number }) {
+function TestimonialCard({ t, delay = 0 }: { t: ApiTestimonial; delay?: number }) {
   return (
     <motion.figure
       initial={{ opacity: 0, y: 14 }}

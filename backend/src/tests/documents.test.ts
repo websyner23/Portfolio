@@ -49,12 +49,27 @@ beforeAll(async () => {
     address: { line1: "Remote-first studio", line2: "Serving clients worldwide" },
   });
 
+  // Employees are created from a login account, so provision one first.
+  const employeeRole = await Role.create({
+    name: "employee",
+    permissions: ["attendance.punch"],
+    isSystem: true,
+  });
+  const employeeUser = await request(app)
+    .post("/api/v1/users")
+    .set(auth())
+    .send({
+      name: "Shadin Rahman",
+      email: "shadin@websyner.test",
+      role: String(employeeRole._id),
+      password: "shadin12345",
+    });
+
   const employee = await request(app)
     .post("/api/v1/employees")
     .set(auth())
     .send({
-      fullName: "Shadin Rahman",
-      email: "shadin@websyner.test",
+      user: employeeUser.body.data.user._id,
       designation: "Developer",
       joinDate: "2026-04-01",
       baseSalary: 4000,

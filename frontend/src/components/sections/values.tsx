@@ -2,9 +2,14 @@
 
 import { motion } from "framer-motion";
 import { Container, Section } from "@/components/ui/section";
-import { websynerValues } from "@/data/stats";
+import { statsFallback } from "@/data/stats";
+import type { ApiStat } from "@/lib/content";
 
-export function Values() {
+export function Values({
+  items = statsFallback.filter((s) => s.group === "values"),
+}: {
+  items?: ApiStat[];
+} = {}) {
   return (
     <Section id="values" className="py-0" bleed>
       <div className="relative overflow-hidden bg-brand text-brand-foreground">
@@ -29,7 +34,7 @@ export function Values() {
 
             <div className="lg:col-span-7">
               <div className="grid gap-px overflow-hidden rounded-2xl border border-brand-foreground/15 bg-brand-foreground/15 sm:grid-cols-2">
-                {websynerValues.map((v, i) => (
+                {items.map((v, i) => (
                   <motion.div
                     key={v.title}
                     initial={{ opacity: 0, y: 12 }}

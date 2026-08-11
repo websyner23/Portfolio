@@ -6,6 +6,7 @@ import { Schedule } from "@/components/sections/schedule";
 import { ContactSummary } from "@/components/sections/contact-summary";
 import { TestimonialsGrid } from "@/components/sections/testimonials-grid";
 import { Cta } from "@/components/sections/cta";
+import { getServices, getSiteSettings, getTestimonials } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -13,7 +14,13 @@ export const metadata: Metadata = {
     "Tell us about your project. We'll reply within one business day with thoughtful questions and a clear next step.",
 };
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const [services, testimonials, settings] = await Promise.all([
+    getServices(),
+    getTestimonials(),
+    getSiteSettings(),
+  ]);
+
   return (
     <>
       <PageBanner
@@ -30,7 +37,7 @@ export default function ContactPage() {
         breadcrumbs={[{ label: "Contact" }]}
       />
       <Suspense fallback={<div className="container-page py-20" />}>
-        <ContactForm />
+        <ContactForm services={services} settings={settings} />
       </Suspense>
       <Schedule />
       <ContactSummary />

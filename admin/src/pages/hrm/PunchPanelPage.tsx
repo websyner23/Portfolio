@@ -1,14 +1,26 @@
-import { Alert, Button, Card, Col, Row, Statistic, Tag, Typography } from "antd";
+import {
+  Alert,
+  Button,
+  Card,
+  Col,
+  Row,
+  Space,
+  Statistic,
+  Tag,
+  Typography,
+} from "antd";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
-import { FiLogIn, FiLogOut } from "react-icons/fi";
+import { FiLogIn, FiLogOut, FiPause, FiPlay } from "react-icons/fi";
 import { toast } from "sonner";
 import PageHeader from "../../components/PageHeader";
 import { BRAND } from "../../config";
 import {
+  useEndBreakMutation,
   useGetMyTodayQuery,
   usePunchInMutation,
   usePunchOutMutation,
+  useStartBreakMutation,
 } from "../../redux/api/hrmApi";
 
 /** Live h:mm:ss since the open session started. */
@@ -44,9 +56,29 @@ const PunchPanelPage = () => {
   const { data, isLoading, error } = useGetMyTodayQuery();
   const [punchIn, { isLoading: punchingIn }] = usePunchInMutation();
   const [punchOut, { isLoading: punchingOut }] = usePunchOutMutation();
+  const [startBreak, { isLoading: startingBreak }] = useStartBreakMutation();
+  const [endBreak, { isLoading: endingBreak }] = useEndBreakMutation();
 
   const today = data?.data;
   const elapsed = useElapsed(today?.openSince ?? null);
+  const breakElapsed = useElapsed(today?.breakSince ?? null);
+
+  const handleBreak = async (action: "start" | "end") => {
+    try {
+      if (action === "start") {
+        await startBreak().unwrap();
+        toast.success("Break started — your clock is paused");
+      } else {
+        await endBreak().unwrap();
+        toast.success("Back on the clock");
+      }
+    } catch (err) {
+      toast.error(
+        (err as { data?: { message?: string } })?.data?.message ??
+          "Could not update your break"
+      );
+    }
+  };
 
   const notLinked =
     (error as { data?: { message?: string } })?.data?.message?.includes("linked");
@@ -102,10 +134,20 @@ const PunchPanelPage = () => {
 
             <div style={{ margin: "20px 0" }}>
               <Tag
-                color={today?.isPunchedIn ? "green" : "default"}
+                color={
+                  today?.isOnBreak
+                    ? "orange"
+                    : today?.isPunchedIn
+                      ? "green"
+                      : "default"
+                }
                 style={{ fontSize: 14, padding: "4px 14px", borderRadius: 999 }}
               >
-                {today?.isPunchedIn ? "Currently punched in" : "Not punched in"}
+                {today?.isOnBreak
+                  ? "On a break"
+                  : today?.isPunchedIn
+                    ? "Currently punched in"
+                    : "Not punched in"}
               </Tag>
             </div>
 
@@ -114,31 +156,65 @@ const PunchPanelPage = () => {
               style={{
                 margin: "12px 0",
                 fontVariantNumeric: "tabular-nums",
-                color: today?.isPunchedIn ? BRAND.colorPrimary : undefined,
+                color: today?.isOnBreak
+                  ? "#faad14"
+                  : today?.isPunchedIn
+                    ? BRAND.colorPrimary
+                    : undefined,
               }}
             >
-              {today?.isPunchedIn ? elapsed : today?.workedLabel ?? "0:00"}
+              {today?.isOnBreak
+                ? breakElapsed
+                : today?.isPunchedIn
+                  ? elapsed
+                  : today?.workedLabel ?? "0:00"}
             </Typography.Title>
 
             <Typography.Text type="secondary">
-              {today?.isPunchedIn
-                ? `Since ${today.openSince ? format(new Date(today.openSince), "h:mm a") : "—"}`
-                : "Total worked this shift"}
+              {today?.isOnBreak
+                ? `On break since ${today.breakSince ? format(new Date(today.breakSince), "h:mm a") : "—"}`
+                : today?.isPunchedIn
+                  ? `Since ${today.openSince ? format(new Date(today.openSince), "h:mm a") : "—"}`
+                  : "Total worked this shift"}
             </Typography.Text>
 
             <div style={{ marginTop: 28 }}>
               {today?.isPunchedIn ? (
-                <Button
-                  danger
-                  type="primary"
-                  size="large"
-                  icon={<FiLogOut />}
-                  loading={punchingOut}
-                  onClick={() => handle("out")}
-                  style={{ height: 56, paddingInline: 40, fontSize: 16 }}
-                >
-                  Punch out
-                </Button>
+                <Space wrap style={{ justifyContent: "center" }}>
+                  {today.isOnBreak ? (
+                    <Button
+                      type="primary"
+                      size="large"
+                      icon={<FiPlay />}
+                      loading={endingBreak}
+                      onClick={() => handleBreak("end")}
+                      style={{ height: 56, paddingInline: 32, fontSize: 16 }}
+                    >
+                      Resume work
+                    </Button>
+                  ) : (
+                    <Button
+                      size="large"
+                      icon={<FiPause />}
+                      loading={startingBreak}
+                      onClick={() => handleBreak("start")}
+                      style={{ height: 56, paddingInline: 32, fontSize: 16 }}
+                    >
+                      Take a break
+                    </Button>
+                  )}
+                  <Button
+                    danger
+                    type={today.isOnBreak ? "default" : "primary"}
+                    size="large"
+                    icon={<FiLogOut />}
+                    loading={punchingOut}
+                    onClick={() => handle("out")}
+                    style={{ height: 56, paddingInline: 32, fontSize: 16 }}
+                  >
+                    Punch out
+                  </Button>
+                </Space>
               ) : (
                 <Button
                   type="primary"
@@ -158,10 +234,24 @@ const PunchPanelPage = () => {
         <Col xs={24} lg={12}>
           <Card title="This shift" loading={isLoading}>
             <Row gutter={[16, 16]}>
-              <Col span={12}>
-                <Statistic title="Worked" value={today?.workedLabel ?? "0:00"} />
+              <Col xs={12} md={8}>
+                <Statistic
+                  title="Worked (net)"
+                  value={today?.workedLabel ?? "0:00"}
+                />
               </Col>
-              <Col span={12}>
+              <Col xs={12} md={8}>
+                <Statistic
+                  title="On breaks"
+                  value={today?.breakLabel ?? "0:00"}
+                  suffix={
+                    today?.breakCount
+                      ? `· ${today.breakCount}×`
+                      : undefined
+                  }
+                />
+              </Col>
+              <Col xs={24} md={8}>
                 <Statistic
                   title="Shift window"
                   value={`${today?.rules.shiftStart ?? "--"} – ${today?.rules.shiftEnd ?? "--"}`}
@@ -171,6 +261,14 @@ const PunchPanelPage = () => {
 
             <Alert
               style={{ marginTop: 20 }}
+              type="info"
+              showIcon
+              message="Break time doesn't count as worked time"
+              description="Your clock pauses on a break and resumes when you come back, so the hours recorded are the hours actually worked. Forget to end a break and it's closed automatically at the end of the shift."
+            />
+
+            <Alert
+              style={{ marginTop: 12 }}
               type="info"
               showIcon
               message="Working past midnight is fine"

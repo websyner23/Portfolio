@@ -65,11 +65,22 @@ router.get(
   "/",
   auth(...VIEW),
   catchAsync(async (req, res) => {
+    const query = { ...req.query };
+
+    // Archived projects stay out of the way unless explicitly asked for.
+    const includeArchived = query.archived === "true";
+    delete query.archived;
+
+    const filter = {
+      ...visibilityFilter(req.user),
+      ...(includeArchived ? {} : { archivedAt: { $exists: false } }),
+    };
+
     const qb = new QueryBuilder(
-      Project.find(visibilityFilter(req.user))
+      Project.find(filter)
         .populate("members", "name email avatar")
         .populate("lead", "name email avatar"),
-      { limit: 50, sort: "-createdAt", ...req.query }
+      { limit: 50, sort: "-createdAt", ...query }
     )
       .search(["name", "code", "client.name", "client.company"])
       .filter()
@@ -190,22 +201,63 @@ router.delete(
   "/:id",
   auth(MANAGE),
   catchAsync(async (req, res) => {
-    const project = await Project.findByIdAndDelete(req.params.id);
+    const project = await Project.findById(req.params.id);
     if (!project) throw new AppError(httpStatus.NOT_FOUND, "Project not found");
 
-    await ProjectMessage.deleteMany({ project: req.params.id });
+    /**
+     * Archived, not deleted. Chat is a record of what was said and decided —
+     * destroying it with the project would lose history nobody can recover,
+     * so the project is hidden from the active list instead and its messages
+     * are left intact.
+     */
+    project.status = "cancelled";
+    project.archivedAt = new Date();
+    await project.save();
+
+    const messageCount = await ProjectMessage.countDocuments({
+      project: req.params.id,
+    });
 
     recordAudit(req, {
       user: req.user._id,
-      action: "project.delete",
+      action: "project.archive",
       module: "projects",
       targetId: req.params.id,
-      description: `Deleted project "${project.name}" and its chat history`,
+      description: `Archived project "${project.name}" — ${messageCount} chat message(s) kept`,
     });
 
     sendResponse(res, {
       statusCode: httpStatus.OK,
-      message: "Project deleted",
+      message: `Project archived — its ${messageCount} chat message(s) are preserved`,
+      data: project,
+    });
+  })
+);
+
+/** Brings an archived project back into the active list. */
+router.post(
+  "/:id/restore",
+  auth(MANAGE),
+  catchAsync(async (req, res) => {
+    const project = await Project.findById(req.params.id);
+    if (!project) throw new AppError(httpStatus.NOT_FOUND, "Project not found");
+
+    project.archivedAt = undefined;
+    project.status = "active";
+    await project.save();
+
+    recordAudit(req, {
+      user: req.user._id,
+      action: "project.restore",
+      module: "projects",
+      targetId: req.params.id,
+      description: `Restored project "${project.name}"`,
+    });
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      message: "Project restored",
+      data: project,
     });
   })
 );

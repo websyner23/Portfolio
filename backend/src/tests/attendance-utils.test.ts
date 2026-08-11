@@ -1,5 +1,7 @@
 import {
   addDaysToISO,
+  calculateBreakMinutes,
+  calculateNetWorkedMinutes,
   calculateLateMinutes,
   calculateWorkedMinutes,
   deriveStatus,
@@ -132,6 +134,71 @@ describe("Worked minutes", () => {
 
   it("returns zero for no sessions", () => {
     expect(calculateWorkedMinutes([])).toBe(0);
+  });
+});
+
+describe("Breaks", () => {
+  it("sums completed breaks", () => {
+    expect(
+      calculateBreakMinutes([
+        { start: dhaka("2026-08-10", "23:00"), end: dhaka("2026-08-10", "23:20") },
+        { start: dhaka("2026-08-11", "00:10"), end: dhaka("2026-08-11", "00:20") },
+      ])
+    ).toBe(30);
+  });
+
+  it("ignores a break that is still running", () => {
+    expect(
+      calculateBreakMinutes([
+        { start: dhaka("2026-08-10", "23:00"), end: dhaka("2026-08-10", "23:20") },
+        { start: dhaka("2026-08-11", "00:10") },
+      ])
+    ).toBe(20);
+  });
+
+  it("subtracts break time from worked time", () => {
+    const sessions = [
+      { in: dhaka("2026-08-10", "22:00"), out: dhaka("2026-08-11", "01:00") },
+    ];
+    const breaks = [
+      { start: dhaka("2026-08-10", "23:00"), end: dhaka("2026-08-10", "23:30") },
+    ];
+
+    expect(calculateWorkedMinutes(sessions)).toBe(180);
+    expect(calculateNetWorkedMinutes(sessions, breaks)).toBe(150);
+  });
+
+  it("never reports negative worked time", () => {
+    const sessions = [
+      { in: dhaka("2026-08-10", "22:00"), out: dhaka("2026-08-10", "22:30") },
+    ];
+    // A break longer than the session shouldn't wrap around into a negative.
+    const breaks = [
+      { start: dhaka("2026-08-10", "22:00"), end: dhaka("2026-08-11", "01:00") },
+    ];
+
+    expect(calculateNetWorkedMinutes(sessions, breaks)).toBe(0);
+  });
+
+  it("can push a full shift below the required hours", () => {
+    const sessions = [
+      { in: dhaka("2026-08-10", "22:00"), out: dhaka("2026-08-11", "01:00") },
+    ];
+    const breaks = [
+      { start: dhaka("2026-08-10", "23:00"), end: dhaka("2026-08-11", "00:00") },
+    ];
+
+    const net = calculateNetWorkedMinutes(sessions, breaks);
+    expect(net).toBe(120);
+    expect(deriveStatus("2026-08-10", net, 0, RULES)).toBe("incomplete");
+  });
+
+  it("treats no breaks as no deduction", () => {
+    const sessions = [
+      { in: dhaka("2026-08-10", "22:00"), out: dhaka("2026-08-11", "01:00") },
+    ];
+    expect(calculateNetWorkedMinutes(sessions, [])).toBe(180);
+    expect(calculateNetWorkedMinutes(sessions)).toBe(180);
   });
 });
 

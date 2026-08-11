@@ -11,18 +11,28 @@ import { CaseResults } from "@/components/sections/case-results";
 import { AuditBanner } from "@/components/sections/audit-banner";
 import { FaqSection } from "@/components/sections/faq";
 import { Cta } from "@/components/sections/cta";
-import { getFaqs, getSections, getServices, sectionValue } from "@/lib/content";
+import {
+  getFaqs,
+  getSections,
+  getServices,
+  getStats,
+  getTestimonials,
+  sectionValue,
+  statsByGroup,
+} from "@/lib/content";
 
 export default async function HomePage() {
-  const [faqs, services, sections] = await Promise.all([
+  const [faqs, services, sections, stats, testimonials] = await Promise.all([
     getFaqs("general"),
     getServices(),
     getSections("home"),
+    getStats(),
+    getTestimonials(),
   ]);
 
   return (
     <>
-      <Hero />
+      <Hero services={services} />
       <ServicesGrid
         items={services}
         eyebrow={sectionValue(sections, "services", "eyebrow", "What we do")}
@@ -36,11 +46,11 @@ export default async function HomePage() {
       />
       <MoreThan />
       <WorldMap />
-      <Stats />
-      <Values />
+      <Stats items={statsByGroup(stats, "home-stats")} />
+      <Values items={statsByGroup(stats, "values")} />
       <AboutSummary />
-      <TestimonialsGrid />
-      <WhyChoose />
+      <TestimonialsGrid items={testimonials} />
+      <WhyChoose items={statsByGroup(stats, "why-choose")} />
       <CaseResults />
       <AuditBanner />
       <FaqSection items={faqs.slice(0, 6)} />

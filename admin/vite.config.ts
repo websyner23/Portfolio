@@ -12,5 +12,13 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: true,
+    // Bind every interface, not just loopback — without this the admin panel
+    // is unreachable from outside the machine, which breaks any VM/EC2 host.
+    host: true,
+  },
+  preview: {
+    port: 5173,
+    strictPort: true,
+    host: true,
   },
 });

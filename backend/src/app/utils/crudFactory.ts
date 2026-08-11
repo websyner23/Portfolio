@@ -23,7 +23,10 @@ type TCrudOptions<T> = {
   /** Optional populate spec applied to list/read queries. */
   populate?: string | string[];
   /** Called after any create/update/delete — used to trigger frontend revalidation. */
-  onMutate?: (action: "create" | "update" | "delete", doc: unknown) => void;
+  onMutate?: (
+    action: "create" | "update" | "delete",
+    doc: unknown
+  ) => void;
 };
 
 /**

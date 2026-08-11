@@ -9,7 +9,7 @@ import { AfterLaunch } from "@/components/sections/after-launch";
 import { FaqSection } from "@/components/sections/faq";
 import { Cta } from "@/components/sections/cta";
 import { Button } from "@/components/ui/button";
-import { getFaqs } from "@/lib/content";
+import { getFaqs, getProcess } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Process",
@@ -18,7 +18,10 @@ export const metadata: Metadata = {
 };
 
 export default async function ProcessPage() {
-  const faqs = await getFaqs("process");
+  const [faqs, processItems] = await Promise.all([
+    getFaqs("process"),
+    getProcess(),
+  ]);
 
   return (
     <>
@@ -44,10 +47,12 @@ export default async function ProcessPage() {
           </Button>
         }
       />
-      <ProcessSummary />
-      <ProcessSteps />
+      <ProcessSummary items={processItems.filter((p) => p.group === "summary")} />
+      <ProcessSteps items={processItems.filter((p) => p.group === "step")} />
       <PeaceOfMind />
-      <AfterLaunch />
+      <AfterLaunch
+        items={processItems.filter((p) => p.group === "after-launch")}
+      />
       <FaqSection items={faqs} title={<>How engagements actually run</>} />
       <Cta />
     </>

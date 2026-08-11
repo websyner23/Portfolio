@@ -2,9 +2,14 @@
 
 import { motion } from "framer-motion";
 import { Section, Container, SectionHeading } from "@/components/ui/section";
-import { extras } from "@/data/pricing";
+import { pricingFallback } from "@/data/pricing";
+import type { ApiPricing } from "@/lib/content";
 
-export function Extras() {
+export function Extras({
+  items = pricingFallback.extras,
+}: {
+  items?: ApiPricing["extras"];
+} = {}) {
   return (
     <Section id="extras">
       <Container>
@@ -14,7 +19,7 @@ export function Extras() {
           description="A focused engagement, a maintenance retainer, or a quick audit. Mix and match to match the moment."
         />
         <div className="grid gap-px overflow-hidden rounded-2xl border border-border bg-border md:grid-cols-2 lg:grid-cols-3">
-          {extras.map((e, i) => (
+          {items.map((e, i) => (
             <motion.div
               key={e.title}
               initial={{ opacity: 0, y: 12 }}

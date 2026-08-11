@@ -11,7 +11,7 @@ import { PricingTestimonial } from "@/components/sections/pricing-testimonial";
 import { FaqSection } from "@/components/sections/faq";
 import { Cta } from "@/components/sections/cta";
 import { Button } from "@/components/ui/button";
-import { getFaqs } from "@/lib/content";
+import { getFaqs, getPricing, getTestimonials } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Pricing",
@@ -20,7 +20,11 @@ export const metadata: Metadata = {
 };
 
 export default async function PricingPage() {
-  const faqs = await getFaqs("pricing");
+  const [faqs, pricing, testimonials] = await Promise.all([
+    getFaqs("pricing"),
+    getPricing(),
+    getTestimonials(),
+  ]);
 
   return (
     <>
@@ -45,12 +49,12 @@ export default async function PricingPage() {
           </Button>
         }
       />
-      <PricingPlans />
+      <PricingPlans items={pricing.plans} />
       <CustomQuote />
-      <Extras />
+      <Extras items={pricing.extras} />
       <IncludedEverywhere />
-      <Compare />
-      <PricingTestimonial />
+      <Compare plans={pricing.plans} rows={pricing.compareRows} />
+      <PricingTestimonial items={testimonials} />
       <FaqSection items={faqs} title={<>Pricing questions, answered</>} />
       <Cta />
     </>

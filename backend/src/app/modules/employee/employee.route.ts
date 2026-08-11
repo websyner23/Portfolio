@@ -18,8 +18,10 @@ const MANAGE = "employees.manage";
 
 const createSchema = z.object({
   body: z.object({
-    fullName: z.string({ required_error: "Name is required" }).min(2).max(80),
-    email: z.string({ required_error: "Email is required" }).email(),
+    // An employee is always created from an existing login. Name and email
+    // come from that account rather than being retyped, so the two can never
+    // drift apart.
+    user: z.string({ required_error: "Pick the user this employee record is for" }),
     employeeId: z.string().max(20).optional(),
     designation: z.string().max(80).optional().or(z.literal("")),
     department: z.string().max(80).optional().or(z.literal("")),
@@ -36,13 +38,12 @@ const createSchema = z.object({
     perfectBonus: z.number().min(0).optional(),
     isActive: z.boolean().optional(),
     notes: z.string().max(2000).optional().or(z.literal("")),
-    // Provisions a linked login so the employee can use the punch panel.
-    createLogin: z.boolean().optional(),
   }),
 });
 
+/** `user` is fixed at creation — re-pointing a record elsewhere isn't an edit. */
 const updateSchema = z.object({
-  body: createSchema.shape.body.partial(),
+  body: createSchema.shape.body.omit({ user: true }).partial(),
 });
 
 router.get(
@@ -76,53 +77,62 @@ router.post(
   auth(MANAGE),
   validateRequest(createSchema),
   catchAsync(async (req, res) => {
-    const { createLogin, ...payload } = req.body;
+    const payload = req.body;
+
+    // Identity always comes from the login account — never retyped, so the
+    // two can't drift apart, and every employee has punch-panel access by
+    // construction.
+    const user = await User.findById(payload.user).populate<{
+      role: { name: string; permissions: string[] };
+    }>("role", "name permissions");
+    if (!user) throw new AppError(httpStatus.BAD_REQUEST, "User not found");
+
+    if (user.employee) {
+      throw new AppError(
+        httpStatus.CONFLICT,
+        "That user already has an employee record"
+      );
+    }
 
     const settings = await AttendanceSettings.findOne({ key: "default" });
 
     const employee = await Employee.create({
       ...payload,
+      fullName: user.name,
+      email: user.email,
+      user: user._id,
       employeeId: payload.employeeId || (await nextEmployeeId()),
       baseSalary: payload.baseSalary ?? settings?.defaultBaseSalary ?? 0,
       perfectBonus: payload.perfectBonus ?? settings?.defaultPerfectBonus ?? 0,
     });
 
-    // Optional self-service account, restricted to the punch panel.
-    if (createLogin) {
-      const employeeRole = await Role.findOne({ name: "employee" });
-      if (!employeeRole) {
-        throw new AppError(
-          httpStatus.BAD_REQUEST,
-          "The 'employee' role is missing — run the seeder first"
-        );
-      }
+    // Both sides of the link, written together as always.
+    user.employee = employee._id;
+    await user.save({ validateBeforeSave: false });
 
-      const tempPassword = `Ws${Math.random().toString(36).slice(-8)}`;
-      const user = await User.create({
-        name: employee.fullName,
-        email: employee.email,
-        password: tempPassword,
-        role: employeeRole._id,
-        employee: employee._id,
-        needsPasswordChange: true,
-      });
-
-      employee.user = user._id;
-      await employee.save();
-    }
+    const canPunch =
+      user.role?.name === "super-admin" ||
+      Boolean(user.role?.permissions?.includes("attendance.punch"));
 
     recordAudit(req, {
       user: req.user._id,
       action: "employee.create",
       module: "employees",
       targetId: String(employee._id),
-      description: `Added employee ${employee.fullName} (${employee.employeeId})`,
+      description: `Added employee ${employee.fullName} (${employee.employeeId}) from the ${user.email} account`,
     });
+
+    const created = await Employee.findById(employee._id).populate(
+      "user",
+      "name email status"
+    );
 
     sendResponse(res, {
       statusCode: httpStatus.CREATED,
-      message: "Employee added",
-      data: employee,
+      message: canPunch
+        ? "Employee added — they can use the punch panel now"
+        : `Employee added, but the "${user.role?.name}" role can't clock in. Add the "attendance.punch" permission to that role.`,
+      data: created,
     });
   })
 );

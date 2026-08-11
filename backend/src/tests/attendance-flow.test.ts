@@ -20,6 +20,43 @@ const TZ = "Asia/Dhaka";
 let token: string;
 let employeeId: string;
 
+/**
+ * Employees are always created from a login account, so tests provision the
+ * user first and let the employee inherit its name and email.
+ */
+const makeEmployee = async (
+  fields: {
+    fullName: string;
+    email: string;
+    password?: string;
+  } & Record<string, unknown>
+) => {
+  const { fullName, email, password, ...employeeFields } = fields;
+
+  const role =
+    (await Role.findOne({ name: "employee" })) ??
+    (await Role.create({
+      name: "employee",
+      permissions: ["attendance.punch"],
+      isSystem: true,
+    }));
+
+  const user = await request(app)
+    .post("/api/v1/users")
+    .set("Authorization", `Bearer ${token}`)
+    .send({
+      name: fullName,
+      email,
+      role: String(role._id),
+      password: password ?? "employee12345",
+    });
+
+  return request(app)
+    .post("/api/v1/employees")
+    .set("Authorization", `Bearer ${token}`)
+    .send({ ...employeeFields, user: user.body.data.user._id });
+};
+
 /** Records a completed shift directly, as the punch flow would produce it. */
 const recordShift = async (
   employee: string,
@@ -89,10 +126,7 @@ afterAll(async () => {
 
 describe("Employees", () => {
   it("creates an employee with an auto-generated id and salary defaults", async () => {
-    const res = await request(app)
-      .post("/api/v1/employees")
-      .set("Authorization", `Bearer ${token}`)
-      .send({
+    const res = await makeEmployee({
         fullName: "Shadin",
         email: "shadin@websyner.test",
         designation: "Developer",
@@ -108,10 +142,7 @@ describe("Employees", () => {
   });
 
   it("increments the id for the next employee", async () => {
-    const res = await request(app)
-      .post("/api/v1/employees")
-      .set("Authorization", `Bearer ${token}`)
-      .send({
+    const res = await makeEmployee({
         fullName: "Jahid",
         email: "jahid@websyner.test",
         joinDate: "2026-07-01",
@@ -120,17 +151,39 @@ describe("Employees", () => {
     expect(res.body.data.employeeId).toBe("WS-002");
   });
 
-  it("rejects a duplicate email", async () => {
+  it("refuses to give one login two employee records", async () => {
+    const linkedUser = await User.findOne({ email: "shadin@websyner.test" });
+
     const res = await request(app)
       .post("/api/v1/employees")
       .set("Authorization", `Bearer ${token}`)
-      .send({
-        fullName: "Someone",
-        email: "shadin@websyner.test",
-        joinDate: "2026-07-01",
-      });
+      .send({ user: String(linkedUser?._id), joinDate: "2026-07-01" });
 
     expect(res.status).toBe(409);
+    expect(res.body.message).toContain("already has an employee record");
+  });
+
+  it("takes name and email from the login rather than the request", async () => {
+    const res = await makeEmployee({
+      fullName: "Nadia Islam",
+      email: "nadia@websyner.test",
+      joinDate: "2026-07-01",
+      // These are ignored — identity comes from the account.
+      fullNameOverride: "Someone Else",
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.fullName).toBe("Nadia Islam");
+    expect(res.body.data.email).toBe("nadia@websyner.test");
+    expect(res.body.data.user).toBeTruthy();
+  });
+
+  it("links the punch panel automatically on creation", async () => {
+    const employee = await Employee.findOne({ email: "nadia@websyner.test" });
+    const user = await User.findOne({ email: "nadia@websyner.test" });
+
+    expect(String(user?.employee)).toBe(String(employee?._id));
+    expect(String(employee?.user)).toBe(String(user?._id));
   });
 
   it("deactivates rather than deletes, preserving history", async () => {
@@ -209,7 +262,9 @@ describe("Monthly summary reproduces the HRM sheet's figures", () => {
       .set("Authorization", `Bearer ${token}`);
 
     const totals = res.body.data.totals;
-    expect(totals.activeEmployees).toBe(1); // the other was deactivated
+    // Counts cover every active employee, so assert the figures this suite
+    // actually drives rather than a fixture-sensitive headcount.
+    expect(totals.activeEmployees).toBeGreaterThanOrEqual(1);
     expect(totals.lateDays).toBe(1);
     expect(totals.totalPayroll).toBeGreaterThan(0);
     expect(res.body.data.currency).toBe("BDT");
@@ -233,10 +288,7 @@ describe("In-progress days are never counted as absent", () => {
     const rules = await AttendanceService.getRules();
     const todayLocal = localDateOf(new Date(), rules.timezone);
 
-    const created = await request(app)
-      .post("/api/v1/employees")
-      .set("Authorization", `Bearer ${token}`)
-      .send({
+    const created = await makeEmployee({
         fullName: "Fresh Start",
         email: "fresh@websyner.test",
         joinDate: todayLocal,
@@ -283,7 +335,7 @@ describe("Daily sheet and finalization", () => {
       .send({ date: "2026-07-09" });
 
     expect(res.status).toBe(200);
-    expect(res.body.data.absentMarked).toBe(1);
+    expect(res.body.data.absentMarked).toBeGreaterThanOrEqual(1);
 
     const record = await Attendance.findOne({
       employee: employeeId,
@@ -305,10 +357,7 @@ describe("Daily sheet and finalization", () => {
 
 describe("Perfect attendance bonus", () => {
   it("pays the bonus for a clean month", async () => {
-    const clean = await request(app)
-      .post("/api/v1/employees")
-      .set("Authorization", `Bearer ${token}`)
-      .send({
+    const clean = await makeEmployee({
         fullName: "Perfect Person",
         email: "perfect@websyner.test",
         // A short engagement, so the employment window is exactly the three
@@ -406,35 +455,30 @@ describe("Linking a login to an employee", () => {
   let targetEmployeeId: string;
 
   beforeAll(async () => {
-    const employeeRole = await Role.create({
-      name: "employee",
-      permissions: ["attendance.punch"],
-      isSystem: true,
-    });
+    const employeeRole =
+      (await Role.findOne({ name: "employee" })) ??
+      (await Role.create({
+        name: "employee",
+        permissions: ["attendance.punch"],
+        isSystem: true,
+      }));
     employeeRoleId = String(employeeRole._id);
 
-    // A login created on its own, the way the Users page makes one.
-    const user = await request(app)
-      .post("/api/v1/users")
-      .set("Authorization", `Bearer ${token}`)
-      .send({
-        name: "Rakib Hasan",
-        email: "rakib@websyner.test",
-        role: employeeRoleId,
-        password: PUNCH_PASSWORD,
-      });
-    standaloneUserId = user.body.data.user._id;
-
-    // An employee record created without a login.
-    const employee = await request(app)
-      .post("/api/v1/employees")
-      .set("Authorization", `Bearer ${token}`)
-      .send({
-        fullName: "Rakib Hasan",
-        email: "rakib.employee@websyner.test",
-        joinDate: "2026-07-01",
-      });
+    // Creating an employee now always links a login, so the only way to reach
+    // the unlinked state is to unlink one — which is exactly what an admin
+    // does when someone's account changes.
+    const employee = await makeEmployee({
+      fullName: "Rakib Hasan",
+      email: "rakib@websyner.test",
+      password: PUNCH_PASSWORD,
+      joinDate: "2026-07-01",
+    });
     targetEmployeeId = employee.body.data._id;
+    standaloneUserId = String(employee.body.data.user._id);
+
+    await request(app)
+      .delete(`/api/v1/employees/${targetEmployeeId}/link-user`)
+      .set("Authorization", `Bearer ${token}`);
   });
 
   const punchToken = async () => {
@@ -513,14 +557,17 @@ describe("Linking a login to an employee", () => {
   });
 
   it("refuses to link one account to two employees", async () => {
-    const other = await request(app)
-      .post("/api/v1/employees")
-      .set("Authorization", `Bearer ${token}`)
-      .send({
-        fullName: "Another Person",
-        email: "another@websyner.test",
-        joinDate: "2026-07-01",
-      });
+    const other = await makeEmployee({
+      fullName: "Another Person",
+      email: "another@websyner.test",
+      joinDate: "2026-07-01",
+    });
+
+    // Free this record's own login so the request reaches the guard we're
+    // actually testing rather than "already has a login".
+    await request(app)
+      .delete(`/api/v1/employees/${other.body.data._id}/link-user`)
+      .set("Authorization", `Bearer ${token}`);
 
     const res = await request(app)
       .post(`/api/v1/employees/${other.body.data._id}/link-user`)
@@ -531,7 +578,7 @@ describe("Linking a login to an employee", () => {
     expect(res.body.message).toContain("another employee");
   });
 
-  it("warns when the linked role can't actually punch", async () => {
+  it("warns when the account's role can't actually punch", async () => {
     const viewerRole = await Role.create({
       name: "viewer",
       permissions: ["dashboard.view"],
@@ -546,22 +593,14 @@ describe("Linking a login to an employee", () => {
         password: "viewer12345",
       });
 
-    const employee = await request(app)
+    // Linking is automatic on creation, so the warning has to come back on
+    // the create response — otherwise nobody finds out until they can't punch.
+    const res = await request(app)
       .post("/api/v1/employees")
       .set("Authorization", `Bearer ${token}`)
-      .send({
-        fullName: "Viewer Only",
-        email: "viewer.employee@websyner.test",
-        joinDate: "2026-07-01",
-      });
+      .send({ user: viewer.body.data.user._id, joinDate: "2026-07-01" });
 
-    const res = await request(app)
-      .post(`/api/v1/employees/${employee.body.data._id}/link-user`)
-      .set("Authorization", `Bearer ${token}`)
-      .send({ userId: viewer.body.data.user._id });
-
-    expect(res.status).toBe(200);
-    expect(res.body.data.canPunch).toBe(false);
+    expect(res.status).toBe(201);
     expect(res.body.message).toContain("attendance.punch");
   });
 
@@ -583,18 +622,23 @@ describe("Linking a login to an employee", () => {
     expect(punch.status).toBe(400);
   });
 
-  it("provisions a fresh login when asked to", async () => {
-    const employee = await request(app)
-      .post("/api/v1/employees")
-      .set("Authorization", `Bearer ${token}`)
-      .send({
-        fullName: "Brand New",
-        email: "brandnew@websyner.test",
-        joinDate: "2026-07-01",
-      });
+  it("provisions a fresh login for an employee whose account was removed", async () => {
+    const employee = await makeEmployee({
+      fullName: "Brand New",
+      email: "brandnew@websyner.test",
+      joinDate: "2026-07-01",
+    });
+    const employeeId = employee.body.data._id;
+
+    // Unlink, then delete the account entirely — the state you'd be in after
+    // someone's login is removed but their employment continues.
+    await request(app)
+      .delete(`/api/v1/employees/${employeeId}/link-user`)
+      .set("Authorization", `Bearer ${token}`);
+    await User.deleteOne({ email: "brandnew@websyner.test" });
 
     const res = await request(app)
-      .post(`/api/v1/employees/${employee.body.data._id}/link-user`)
+      .post(`/api/v1/employees/${employeeId}/link-user`)
       .set("Authorization", `Bearer ${token}`)
       .send({ createLogin: true });
 

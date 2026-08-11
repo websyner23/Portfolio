@@ -95,3 +95,17 @@ export const notifyAdmins = (event: string, payload: unknown) => {
   emitTo(ROOM_ADMINS, event, payload);
   emitTo(ROOM_ADMINS, "notification:new", payload);
 };
+
+/**
+ * Tells every admin that a module's data changed, so open tables refresh
+ * themselves instead of showing stale rows until someone reloads.
+ *
+ * `resource` maps to the RTK Query cache tags the admin should invalidate.
+ */
+export const broadcastChange = (
+  resource: string,
+  action: "create" | "update" | "delete" = "update",
+  meta?: Record<string, unknown>
+) => {
+  emitTo(ROOM_ADMINS, "data:changed", { resource, action, ...meta });
+};

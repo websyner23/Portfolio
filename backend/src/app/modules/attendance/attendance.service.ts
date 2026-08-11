@@ -5,8 +5,9 @@ import { Employee } from "../employee/employee.model";
 import { Attendance, AttendanceSettings, Leave } from "./attendance.model";
 import {
   addDaysToISO,
+  calculateBreakMinutes,
   calculateLateMinutes,
-  calculateWorkedMinutes,
+  calculateNetWorkedMinutes,
   deriveStatus,
   formatMinutes,
   isOptionalDay,
@@ -54,7 +55,13 @@ const recalculate = async (
   record: any,
   rules: TShiftRules
 ) => {
-  record.workedMinutes = calculateWorkedMinutes(record.sessions);
+  record.breakMinutes = calculateBreakMinutes(record.breaks ?? []);
+  // Worked time is net of breaks — that's what the required-hours rule and
+  // payroll are judged against.
+  record.workedMinutes = calculateNetWorkedMinutes(
+    record.sessions,
+    record.breaks ?? []
+  );
   record.lateMinutes = record.sessions.length
     ? calculateLateMinutes(record.sessions[0].in, record.shiftDate, rules)
     : 0;
@@ -118,7 +125,54 @@ const punchOut = async (employeeId: string) => {
     throw new AppError(httpStatus.BAD_REQUEST, "You aren't punched in");
   }
 
+  // Close an open break first, otherwise it would run past the punch-out and
+  // eat into a shift that has already ended.
+  const openBreak = record.breaks?.find((b) => !b.end);
+  if (openBreak) {
+    openBreak.end = now;
+    openBreak.autoClosed = true;
+  }
+
   open.out = now;
+  return recalculate(record, rules);
+};
+
+/** Starts a break inside the current session. */
+const startBreak = async (employeeId: string, reason?: string) => {
+  const rules = await getRules();
+  const now = new Date();
+  const shiftDate = resolveShiftDate(now, rules);
+
+  const record = await Attendance.findOne({ employee: employeeId, shiftDate });
+  const openSession = record?.sessions.find((s) => !s.out);
+
+  if (!record || !openSession) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "You need to be punched in to take a break"
+    );
+  }
+  if (record.breaks?.some((b) => !b.end)) {
+    throw new AppError(httpStatus.CONFLICT, "You're already on a break");
+  }
+
+  record.breaks.push({ start: now, reason: reason ?? "", autoClosed: false });
+  return recalculate(record, rules);
+};
+
+const endBreak = async (employeeId: string) => {
+  const rules = await getRules();
+  const now = new Date();
+  const shiftDate = resolveShiftDate(now, rules);
+
+  const record = await Attendance.findOne({ employee: employeeId, shiftDate });
+  const openBreak = record?.breaks?.find((b) => !b.end);
+
+  if (!record || !openBreak) {
+    throw new AppError(httpStatus.BAD_REQUEST, "You aren't on a break");
+  }
+
+  openBreak.end = now;
   return recalculate(record, rules);
 };
 
@@ -129,6 +183,7 @@ const getMyToday = async (employeeId: string) => {
 
   const record = await Attendance.findOne({ employee: employeeId, shiftDate });
   const openSession = record?.sessions.find((s) => !s.out);
+  const openBreak = record?.breaks?.find((b) => !b.end);
 
   return {
     shiftDate,
@@ -136,6 +191,11 @@ const getMyToday = async (employeeId: string) => {
     record,
     isPunchedIn: Boolean(openSession),
     openSince: openSession?.in ?? null,
+    isOnBreak: Boolean(openBreak),
+    breakSince: openBreak?.start ?? null,
+    breakMinutes: record?.breakMinutes ?? 0,
+    breakLabel: formatMinutes(record?.breakMinutes ?? 0),
+    breakCount: record?.breaks?.length ?? 0,
     workedMinutes: record?.workedMinutes ?? 0,
     workedLabel: formatMinutes(record?.workedMinutes ?? 0),
   };
@@ -180,8 +240,11 @@ const getDailySheet = async (date?: string) => {
       firstIn: record?.sessions[0]?.in ?? null,
       lastOut: record?.sessions.filter((s) => s.out).at(-1)?.out ?? null,
       isPunchedIn: Boolean(openSession),
+      isOnBreak: Boolean(record?.breaks?.some((b) => !b.end)),
       workedMinutes: record?.workedMinutes ?? 0,
       workedLabel: formatMinutes(record?.workedMinutes ?? 0),
+      breakMinutes: record?.breakMinutes ?? 0,
+      breakLabel: formatMinutes(record?.breakMinutes ?? 0),
       lateMinutes: record?.lateMinutes ?? 0,
       note: record?.note ?? "",
     };
@@ -421,9 +484,19 @@ const finalizeShiftDate = async (shiftDate: string) => {
   for (const record of records) {
     seen.add(String(record.employee));
 
+    const shiftEnd = shiftEndInstant(shiftDate, rules);
+
+    // Close a forgotten break before the session, so it can't extend past the
+    // end of the shift and wipe out the whole day's worked time.
+    const openBreak = record.breaks?.find((b) => !b.end);
+    if (openBreak) {
+      openBreak.end = shiftEnd;
+      openBreak.autoClosed = true;
+    }
+
     const open = record.sessions.find((s) => !s.out);
     if (open) {
-      open.out = shiftEndInstant(shiftDate, rules);
+      open.out = shiftEnd;
       open.autoClosed = true;
       autoClosed += 1;
     }
@@ -470,6 +543,8 @@ export const AttendanceService = {
   updateSettings,
   punchIn,
   punchOut,
+  startBreak,
+  endBreak,
   getMyToday,
   getDailySheet,
   getMonthlySummary,

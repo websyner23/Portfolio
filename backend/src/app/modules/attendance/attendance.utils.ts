@@ -90,6 +90,7 @@ export const calculateLateMinutes = (
 };
 
 export type TSession = { in: Date; out?: Date | null };
+export type TBreak = { start: Date; end?: Date | null };
 
 /** Total worked minutes across sessions; open sessions contribute nothing. */
 export const calculateWorkedMinutes = (sessions: TSession[]): number =>
@@ -98,6 +99,24 @@ export const calculateWorkedMinutes = (sessions: TSession[]): number =>
     const span = session.out.getTime() - session.in.getTime();
     return total + Math.max(0, Math.floor(span / MINUTE));
   }, 0);
+
+/** Total minutes spent on breaks; an open break contributes nothing yet. */
+export const calculateBreakMinutes = (breaks: TBreak[]): number =>
+  breaks.reduce((total, entry) => {
+    if (!entry.end) return total;
+    const span = entry.end.getTime() - entry.start.getTime();
+    return total + Math.max(0, Math.floor(span / MINUTE));
+  }, 0);
+
+/**
+ * Time actually worked: session time minus breaks, never below zero.
+ * This is the figure the required-hours rule and payroll are judged against.
+ */
+export const calculateNetWorkedMinutes = (
+  sessions: TSession[],
+  breaks: TBreak[] = []
+): number =>
+  Math.max(0, calculateWorkedMinutes(sessions) - calculateBreakMinutes(breaks));
 
 /**
  * The instant a shift ends. When shiftEnd is earlier than shiftStart the shift

@@ -2,13 +2,18 @@
 
 import { Star, Quote } from "lucide-react";
 import { Section, Container, SectionHeading } from "@/components/ui/section";
-import { testimonials, type Testimonial } from "@/data/testimonials";
+import { testimonialsFallback } from "@/data/testimonials";
+import type { ApiTestimonial } from "@/lib/content";
 import { cn } from "@/lib/utils";
 
-export function Testimonials() {
-  const half = Math.ceil(testimonials.length / 2);
-  const row1 = testimonials.slice(0, half);
-  const row2 = testimonials.slice(half).concat(testimonials.slice(0, 1));
+export function Testimonials({
+  items = testimonialsFallback,
+}: {
+  items?: ApiTestimonial[];
+} = {}) {
+  const half = Math.ceil(items.length / 2);
+  const row1 = items.slice(0, half);
+  const row2 = items.slice(half).concat(items.slice(0, 1));
   return (
     <Section id="testimonials" className="overflow-hidden bg-secondary/30 border-y border-border">
       <Container>
@@ -32,7 +37,7 @@ function Marquee({
   duration = "50s",
   reverse,
 }: {
-  items: Testimonial[];
+  items: ApiTestimonial[];
   duration?: string;
   reverse?: boolean;
 }) {
@@ -58,7 +63,7 @@ function Marquee({
   );
 }
 
-function TestimonialCard({ t }: { t: Testimonial }) {
+function TestimonialCard({ t }: { t: ApiTestimonial }) {
   return (
     <figure className="relative w-[340px] md:w-[420px] shrink-0 rounded-2xl border border-border bg-card p-6 md:p-7 shadow-sm">
       <Quote className="absolute right-6 top-6 size-7 text-muted-foreground/20" aria-hidden />

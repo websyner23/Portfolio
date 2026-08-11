@@ -8,6 +8,7 @@ import { WhyChoose } from "@/components/sections/why-choose";
 import { Drivers } from "@/components/sections/drivers";
 import { Cta } from "@/components/sections/cta";
 import { Button } from "@/components/ui/button";
+import { getStats, getTeam, statsByGroup } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "About",
@@ -15,7 +16,9 @@ export const metadata: Metadata = {
     "WebSyner is a senior, remote-first studio building modern websites, brands, and software for ambitious teams worldwide.",
 };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const [stats, team] = await Promise.all([getStats(), getTeam()]);
+
   return (
     <>
       <PageBanner
@@ -46,9 +49,9 @@ export default function AboutPage() {
         }
       />
       <MissionVision />
-      <Team />
-      <WhyChoose />
-      <Drivers />
+      <Team items={team} />
+      <WhyChoose items={statsByGroup(stats, "why-choose")} />
+      <Drivers items={statsByGroup(stats, "drivers")} />
       <Cta />
     </>
   );

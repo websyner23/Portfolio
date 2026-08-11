@@ -3,7 +3,9 @@
 import { motion, useInView, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { useEffect, useRef } from "react";
 import { Section, Container } from "@/components/ui/section";
-import { homeStats } from "@/data/stats";
+import { statsFallback } from "@/data/stats";
+import type { ApiStat } from "@/lib/content";
+import { getIcon } from "@/lib/icon-map";
 
 function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -24,15 +26,19 @@ function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
   );
 }
 
-export function Stats() {
+export function Stats({
+  items = statsFallback.filter((s) => s.group === "home-stats"),
+}: {
+  items?: ApiStat[];
+} = {}) {
   return (
     <Section className="py-16 md:py-20">
       <Container>
         <div className="rounded-3xl border border-border bg-gradient-to-br from-brand/8 via-background to-navy/6 p-8 md:p-12">
           <div className="grid gap-10 md:grid-cols-4">
-            {homeStats.map((s, i) => {
-              const numeric = parseInt(s.value, 10);
-              const Icon = s.icon;
+            {items.map((s, i) => {
+              const numeric = parseInt(s.value ?? "0", 10);
+              const Icon = getIcon(s.icon);
               return (
                 <motion.div
                   key={s.label}

@@ -66,6 +66,42 @@ Killing the process on the port by hand usually isn't enough — `ts-node-dev` a
 
 The ports are deliberately fixed rather than auto-incrementing: the backend's CORS whitelist and the admin's `VITE_API_URL` both assume 5173 and 5000, so silently moving to 5174 would fail later with a confusing CORS error instead of failing fast here.
 
+### Deploying to a server (AWS EC2)
+
+`installer.sh` sets up a fresh Ubuntu server in one go — Node, MongoDB, all three apps' environment files, dependencies and the seed:
+
+```bash
+chmod +x installer.sh
+./installer.sh
+```
+
+Run it as `ubuntu`, not root. Ubuntu 24.04 (noble), 22.04 (jammy) or 20.04 (focal).
+
+It finds the instance's public address from EC2 instance metadata (IMDSv2, falling back to IMDSv1 and then a public lookup) and writes that into every URL. This matters more than it looks: the CORS whitelist and the browser-side API calls both have to be the address the browser actually uses, so leaving them as `localhost` produces a deploy that works over SSH on the VM and fails from anyone's laptop.
+
+Useful overrides:
+
+```bash
+PUBLIC_HOST=app.example.com ./installer.sh      # a domain rather than the EC2 IP
+DATABASE_URL="mongodb+srv://…" ./installer.sh   # Atlas instead of local MongoDB
+SMTP_USER=… SMTP_PASS=… ./installer.sh          # enable outgoing email
+CLOUDINARY_CLOUD_NAME=… ./installer.sh          # enable CMS image uploads
+```
+
+JWT and revalidation secrets are generated per install, so no two deployments share them. Existing `.env` files are never overwritten — re-running is safe.
+
+**Open ports 3000, 5173 and 5000** in the EC2 security group. Leave **27017 closed**; MongoDB only listens on loopback.
+
+On a 1 GB instance (`t2.micro`/`t3.micro`) the installer adds a 2 GB swap file first — three npm installs plus a Next.js build will otherwise get OOM-killed, which looks like a corrupt package rather than a memory problem.
+
+`npm run dev` stops when your SSH session ends. To keep the apps up:
+
+```bash
+sudo npm install -g pm2
+pm2 start npm --name websyner -- run dev
+pm2 save && pm2 startup
+```
+
 ### Database
 
 The project targets **MongoDB Atlas** — put your connection string in `backend/.env` as `DATABASE_URL`.
@@ -113,7 +149,7 @@ List endpoints accept `?searchTerm=&page=&limit=&sort=&fields=` plus any model f
 ### Testing the API
 
 - **`backend/requests/*.http`** — one file per module for the VS Code REST Client extension. Run the *Login* request first; the token is chained automatically into the rest.
-- **`npm test`** — 172 Jest + Supertest tests against an in-memory MongoDB, so they never touch a real database. Eight suites: auth and RBAC, leads and meetings, attendance maths, the attendance flow end to end, finance and payroll, document generation, projects with chat access control, and dashboard permission gating.
+- **`npm test`** — 194 Jest + Supertest tests against an in-memory MongoDB, so they never touch a real database. Eight suites: auth and RBAC, leads and meetings, attendance maths, the attendance flow end to end, finance and payroll, document generation, projects with chat access control, and dashboard permission gating.
 
 ---
 
@@ -139,7 +175,7 @@ Vite + React 18 + Ant Design 5, with RTK Query for data and `redux-persist` for 
 | Website → Categories, Testimonials, Team, Pricing, Extras, Comparison, FAQs, Process, Stats | Full CRUD for every content list on the site |
 | Leads | Pipeline for contact and quote submissions — status, internal notes, search, filters, stat cards |
 | Meetings | Confirm, reschedule and cancel bookings; each change emails the visitor |
-| Attendance → Punch panel | Clock in/out with a live timer for the current shift |
+| Attendance → Punch panel | Clock in/out and take breaks, with a live timer for the current shift |
 | Attendance → Daily | Per-date sheet with status, first in, last out, work time and lateness; manual finalize |
 | Attendance → Monthly | Per-employee and company totals, attendance %, bonus eligibility, payroll, xlsx export |
 | Attendance → Employees | Directory, salaries, and linking each employee to a punch-panel login |
@@ -216,7 +252,11 @@ Socket.io connects the admin panel to the API. The access token is verified on t
 | `meeting.upcoming` | A confirmed meeting starts within the hour (cron) |
 | `attendance:update` | Someone punches in or out |
 
+Beyond those, **every successful write to the API broadcasts a `data:changed` event** naming the cache tags it touched, and the admin invalidates them — so any open table refreshes itself the moment someone else changes something. That's wired centrally in `realtimeBroadcast.ts` rather than per-handler, so a new endpoint is live by default with nothing to remember.
+
 Project chat runs over the same connection in per-project rooms (`message:new`, `typing`). **Membership is re-checked on join and again on every send**, so a client can't emit into a room it was never allowed to enter — a join-time check alone would be bypassable. If the socket drops, the chat falls back to REST so messages still send.
+
+**Chat history is never destroyed.** Deleting a project archives it instead: it drops out of the active list (`?archived=true` brings it back) and every message is kept, because a conversation is a record of what was decided. Archived projects can be restored.
 
 The public website never opens a socket — form posts on the website trigger the notifications server-side.
 
@@ -233,16 +273,17 @@ Four rules are worth knowing because they drive payroll:
 
 This maths is the highest-risk part of the system — a timezone slip would silently corrupt payroll — so it is covered by 41 dedicated unit tests including the 05:59 / 06:00 / 06:01 cutoff boundaries.
 
-### Giving someone punch-panel access
+### Employees are created from a login
 
-An **employee record** and a **login account** are separate things, and the punch panel only works once they're linked. Two conditions must both hold:
+An employee record is always made **from an existing user account** — pick the person under **Attendance → Employees → Add employee** and their name and email come from that account. There's no retyping, so the two can never disagree, and every employee has punch-panel access the moment they're created. Editing a user's name or email under **Users** updates their employee record automatically.
 
-1. The employee is linked to a login — **Attendance → Employees → "Link login"**. You can attach an account that already exists or create a fresh one on the spot.
-2. That account's role includes **`attendance.punch`** — the seeded `employee` role has it. The link dialog warns you upfront if the role you picked can't punch.
+The account's role still has to include **`attendance.punch`** (the seeded `employee` role does). The form warns you upfront if the role you picked can't clock in.
 
-If either is missing, the panel shows *"Your account isn't linked to an employee record."* The user needs to log out and back in after being linked, since their session carries the old link state.
+If someone's login changes, **"Link login"** on the employee row attaches a different account or provisions a fresh one. Unlinking removes punch access but keeps the account, and attendance history is never deleted. A newly linked user must log out and back in, since their session carries the old link state.
 
-Unlinking removes punch access but keeps the account itself, and attendance history is never deleted.
+### Breaks
+
+Employees can pause the clock from the punch panel. Break time is **subtracted from worked time**, so the hours recorded are the hours actually worked — and a long enough break can push a full shift under the required daily minutes, marking it incomplete. A break left open is closed automatically at the end of the shift, before the session is, so it can't run past the shift and wipe out the day.
 
 ## Money
 
@@ -279,11 +320,9 @@ Export is either a print dialog (the route to a PDF) or a PNG via `html-to-image
 
 **Working end to end:** monorepo tooling · authentication with refresh tokens · dynamic roles and permissions · audit logging with device details · the full website CMS · media uploads · the public content API · the website reading its content, colours and navigation from the database · the rebuilt portfolio with shareable URL filters, search and case-study detail pages · all three website forms (contact, hero quote, meeting booking) submitting for real · the leads pipeline · meeting management with visitor emails · realtime admin notifications · attendance and HRM (punch panel, daily sheet, monthly report, leave, employee directory, nightly finalization) · finance and payroll (accounts, transactions, receivables, salary ledger generated from attendance) · the HR document generator with six seeded letter templates · project management with tasks, derived progress and realtime team chat · a permission-aware dashboard.
 
-172 backend tests pass across auth/RBAC, leads, meetings, attendance, finance, documents, projects and the dashboard.
+194 backend tests pass across auth/RBAC, leads, meetings, attendance (including break maths), finance, documents, projects and the dashboard.
 
 **Still to do:**
-
-Most website *section components* still read from `frontend/src/data/*.ts` rather than the API. The pages, layout, navigation, theme, services, FAQs, portfolio and all three forms are converted; the remaining presentational sections (values, why-choose, industries, team, testimonials, pricing tables, process steps) continue to work from the static files. Each one migrates the same way: accept an optional prop, default it to the static export, and fetch in the page — see `services-grid.tsx` for the pattern.
 
 Two things worth setting up when you're ready to go live:
 

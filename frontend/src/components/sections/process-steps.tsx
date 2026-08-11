@@ -2,10 +2,16 @@
 
 import { motion } from "framer-motion";
 import { Section, Container, SectionHeading } from "@/components/ui/section";
-import { processSteps } from "@/data/process";
+import { processFallback } from "@/data/process";
+import type { ApiProcessStep } from "@/lib/content";
+import { getIcon } from "@/lib/icon-map";
 import { Check } from "lucide-react";
 
-export function ProcessSteps() {
+export function ProcessSteps({
+  items = processFallback.filter((p) => p.group === "step"),
+}: {
+  items?: ApiProcessStep[];
+} = {}) {
   return (
     <Section id="process">
       <Container>
@@ -18,8 +24,8 @@ export function ProcessSteps() {
         <div className="relative">
           <div className="pointer-events-none absolute left-6 md:left-1/2 top-0 bottom-0 w-px bg-border md:-translate-x-1/2" aria-hidden />
           <div className="space-y-12 md:space-y-20">
-            {processSteps.map((p, i) => {
-              const Icon = p.icon;
+            {items.map((p, i) => {
+              const Icon = getIcon(p.icon);
               const reverse = i % 2 === 1;
               return (
                 <motion.div

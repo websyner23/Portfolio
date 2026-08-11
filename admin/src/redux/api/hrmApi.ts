@@ -109,6 +109,11 @@ export type TMyToday = {
   rules: { shiftStart: string; shiftEnd: string; graceMinutes: number };
   isPunchedIn: boolean;
   openSince: string | null;
+  isOnBreak: boolean;
+  breakSince: string | null;
+  breakMinutes: number;
+  breakLabel: string;
+  breakCount: number;
   workedMinutes: number;
   workedLabel: string;
 };
@@ -199,6 +204,18 @@ export const hrmApi = baseApi.injectEndpoints({
     }),
     punchOut: builder.mutation<TApiResponse<unknown>, void>({
       query: () => ({ url: "/attendance/punch-out", method: "POST" }),
+      invalidatesTags: ["Attendance"],
+    }),
+    startBreak: builder.mutation<TApiResponse<unknown>, string | void>({
+      query: (reason) => ({
+        url: "/attendance/break/start",
+        method: "POST",
+        body: reason ? { reason } : {},
+      }),
+      invalidatesTags: ["Attendance"],
+    }),
+    endBreak: builder.mutation<TApiResponse<unknown>, void>({
+      query: () => ({ url: "/attendance/break/end", method: "POST" }),
       invalidatesTags: ["Attendance"],
     }),
 
@@ -297,6 +314,8 @@ export const {
   useGetMyTodayQuery,
   usePunchInMutation,
   usePunchOutMutation,
+  useStartBreakMutation,
+  useEndBreakMutation,
   useGetDailySheetQuery,
   useGetMonthlySummaryQuery,
   useCreateAttendanceRecordMutation,

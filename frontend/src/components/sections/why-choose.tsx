@@ -3,9 +3,14 @@
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Section, Container, SectionHeading } from "@/components/ui/section";
-import { whyChoose } from "@/data/stats";
+import { statsFallback } from "@/data/stats";
+import type { ApiStat } from "@/lib/content";
 
-export function WhyChoose() {
+export function WhyChoose({
+  items = statsFallback.filter((s) => s.group === "why-choose"),
+}: {
+  items?: ApiStat[];
+} = {}) {
   return (
     <Section id="why-us">
       <Container>
@@ -16,7 +21,7 @@ export function WhyChoose() {
         />
 
         <div className="grid gap-px overflow-hidden rounded-2xl border border-border bg-border md:grid-cols-2 lg:grid-cols-3">
-          {whyChoose.map((w, i) => (
+          {items.map((w, i) => (
             <motion.div
               key={w.title}
               initial={{ opacity: 0, y: 12 }}

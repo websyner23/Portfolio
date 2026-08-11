@@ -4,6 +4,7 @@ import express, { Application, Request, Response } from "express";
 import config from "./config";
 import globalErrorHandler from "./app/middlewares/globalErrorHandler";
 import notFound from "./app/middlewares/notFound";
+import realtimeBroadcast from "./app/middlewares/realtimeBroadcast";
 import router from "./app/routes";
 
 const app: Application = express();
@@ -31,6 +32,7 @@ app.get("/api/v1/health", (req: Request, res: Response) => {
   });
 });
 
+app.use("/api/v1", realtimeBroadcast);
 app.use("/api/v1", router);
 
 app.use(notFound);
