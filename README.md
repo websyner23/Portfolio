@@ -75,7 +75,9 @@ chmod +x installer.sh
 ./installer.sh
 ```
 
-Run it as `ubuntu`, not root. Ubuntu 24.04 (noble), 22.04 (jammy) or 20.04 (focal).
+Run it as `ubuntu`, not root. Ubuntu 20.04 or newer.
+
+MongoDB only publishes apt repositories for LTS releases, and only some months after each one ships — so on a newer release (26.04 "resolute", 25.10, 24.10 …) the installer uses the most recent published repo, which targets the same OpenSSL generation and installs normally. It tells you when it does this. If the install still fails, it points you at the Atlas route below.
 
 It finds the instance's public address from EC2 instance metadata (IMDSv2, falling back to IMDSv1 and then a public lookup) and writes that into every URL. This matters more than it looks: the CORS whitelist and the browser-side API calls both have to be the address the browser actually uses, so leaving them as `localhost` produces a deploy that works over SSH on the VM and fails from anyone's laptop.
 
@@ -83,10 +85,13 @@ Useful overrides:
 
 ```bash
 PUBLIC_HOST=app.example.com ./installer.sh      # a domain rather than the EC2 IP
-DATABASE_URL="mongodb+srv://…" ./installer.sh   # Atlas instead of local MongoDB
+DATABASE_URL="mongodb+srv://…" ./installer.sh   # Atlas — skips the MongoDB install entirely
+SKIP_MONGODB=1 ./installer.sh                   # don't touch MongoDB at all
 SMTP_USER=… SMTP_PASS=… ./installer.sh          # enable outgoing email
 CLOUDINARY_CLOUD_NAME=… ./installer.sh          # enable CMS image uploads
 ```
+
+Passing a remote `DATABASE_URL` skips the local MongoDB install completely, which is the simplest option on a small instance — one less service competing for RAM.
 
 JWT and revalidation secrets are generated per install, so no two deployments share them. Existing `.env` files are never overwritten — re-running is safe.
 

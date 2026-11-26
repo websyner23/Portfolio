@@ -47,25 +47,45 @@ fi
 
 source /etc/os-release
 CODENAME="${VERSION_CODENAME:-}"
+UBUNTU_VERSION="${VERSION_ID:-}"
 
 if [[ -z "$CODENAME" ]]; then
   echo "Could not detect Ubuntu codename."
   exit 1
 fi
 
-echo "Detected Ubuntu codename: $CODENAME"
+echo "Detected Ubuntu: ${PRETTY_NAME:-$CODENAME} (codename: $CODENAME)"
 
-if [[ "$CODENAME" != "noble" && "$CODENAME" != "jammy" && "$CODENAME" != "focal" ]]; then
-  echo ""
-  echo "Unsupported Ubuntu version for MongoDB direct installation: $CODENAME"
-  echo "Please use one of the following for this project:"
-  echo "  - Ubuntu 24.04 LTS: noble"
-  echo "  - Ubuntu 22.04 LTS: jammy"
-  echo "  - Ubuntu 20.04 LTS: focal"
-  echo ""
-  echo "Recommended: Ubuntu Server 24.04 LTS"
-  exit 1
-fi
+# "26.04" -> 2604, so releases can be compared numerically.
+ver_num() {
+  local v="${1:-0.0}"
+  local major="${v%%.*}"
+  local minor="${v##*.}"
+  # 10# forces base 10 — "04" would otherwise be read as octal.
+  echo $((10#${major:-0} * 100 + 10#${minor:-0}))
+}
+
+# MongoDB only publishes apt repos for LTS releases, and only some time after
+# each one ships. On a newer release we use the most recent published repo,
+# which is built against the same OpenSSL generation and installs cleanly.
+mongo_repo_codename() {
+  case "$CODENAME" in
+    focal | jammy | noble)
+      echo "$CODENAME"
+      return
+      ;;
+  esac
+
+  local n
+  n="$(ver_num "$UBUNTU_VERSION")"
+  if   ((n >= 2404)); then echo "noble"
+  elif ((n >= 2204)); then echo "jammy"
+  elif ((n >= 2004)); then echo "focal"
+  else echo ""
+  fi
+}
+
+MONGO_CODENAME="$(mongo_repo_codename)"
 
 if [[ ! -f "$APP_DIR/package.json" ]]; then
   echo "No package.json in $APP_DIR — run this from the project root."
@@ -136,6 +156,42 @@ echo "Public address: $BASE_URL"
 
 # ------------------------------------------------------------- packages ----
 
+# ---------------------------------------------------------------- mongo ----
+#
+# A remote DATABASE_URL (Atlas) means there's nothing to install locally, which
+# also sidesteps repo availability on brand-new Ubuntu releases entirely.
+
+DATABASE_URL="${DATABASE_URL:-}"
+INSTALL_MONGODB=1
+
+if [[ "${SKIP_MONGODB:-0}" == "1" ]]; then
+  INSTALL_MONGODB=0
+  echo "Skipping MongoDB install (SKIP_MONGODB=1)."
+elif [[ -n "$DATABASE_URL" && ! "$DATABASE_URL" =~ (localhost|127\.0\.0\.1) ]]; then
+  INSTALL_MONGODB=0
+  echo "Using the DATABASE_URL you supplied — skipping the local MongoDB install."
+fi
+
+if [[ "$INSTALL_MONGODB" -eq 1 && -z "$MONGO_CODENAME" ]]; then
+  echo ""
+  echo "MongoDB has no apt repository for Ubuntu ${UBUNTU_VERSION:-$CODENAME}."
+  echo "Either:"
+  echo "  · point at MongoDB Atlas and skip the local install:"
+  echo "      DATABASE_URL='mongodb+srv://…' ./installer.sh"
+  echo "  · or relaunch the instance on Ubuntu Server 24.04 LTS."
+  exit 1
+fi
+
+if [[ "$INSTALL_MONGODB" -eq 1 && "$MONGO_CODENAME" != "$CODENAME" ]]; then
+  echo ""
+  echo "MongoDB does not publish a repository for '$CODENAME' yet, so the"
+  echo "'$MONGO_CODENAME' packages will be used instead. They target the same"
+  echo "OpenSSL generation and install normally on this release."
+  echo ""
+fi
+
+DATABASE_URL="${DATABASE_URL:-mongodb://127.0.0.1:27017/websyner}"
+
 echo "==> Cleaning old/broken MongoDB repositories"
 sudo rm -f /etc/apt/sources.list.d/*mongo*
 sudo rm -f /etc/apt/sources.list.d/*mongodb*
@@ -162,44 +218,58 @@ sudo apt-get install -y nodejs
 echo "Node version: $(node -v)"
 echo "npm version: $(npm -v)"
 
-echo "==> Installing MongoDB Community Server ${MONGODB_MAJOR}"
+MONGO_STATUS="not installed (using a remote database)"
 
-curl -fsSL "https://pgp.mongodb.com/server-${MONGODB_MAJOR}.asc" | \
-  sudo gpg --yes -o "/usr/share/keyrings/mongodb-server-${MONGODB_MAJOR}.gpg" \
-  --dearmor
+if [[ "$INSTALL_MONGODB" -eq 1 ]]; then
+  echo "==> Installing MongoDB Community Server ${MONGODB_MAJOR} (${MONGO_CODENAME} packages)"
 
-echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-${MONGODB_MAJOR}.gpg ] https://repo.mongodb.org/apt/ubuntu ${CODENAME}/mongodb-org/${MONGODB_MAJOR} multiverse" | \
-  sudo tee "/etc/apt/sources.list.d/mongodb-org-${MONGODB_MAJOR}.list" >/dev/null
+  curl -fsSL "https://pgp.mongodb.com/server-${MONGODB_MAJOR}.asc" | \
+    sudo gpg --yes -o "/usr/share/keyrings/mongodb-server-${MONGODB_MAJOR}.gpg" \
+    --dearmor
 
-sudo apt-get update -y
-sudo apt-get install -y mongodb-org
+  echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-${MONGODB_MAJOR}.gpg ] https://repo.mongodb.org/apt/ubuntu ${MONGO_CODENAME}/mongodb-org/${MONGODB_MAJOR} multiverse" | \
+    sudo tee "/etc/apt/sources.list.d/mongodb-org-${MONGODB_MAJOR}.list" >/dev/null
 
-echo "==> Starting MongoDB service"
-sudo mkdir -p /var/lib/mongodb /var/log/mongodb
-sudo chown -R mongodb:mongodb /var/lib/mongodb /var/log/mongodb
+  sudo apt-get update -y
 
-sudo systemctl daemon-reload
-sudo systemctl start mongod
-sudo systemctl enable mongod
-
-# Wait for mongod to accept connections rather than guessing with a fixed sleep.
-echo -n "Waiting for MongoDB"
-for _ in $(seq 1 30); do
-  if mongosh --quiet --eval 'db.runCommand({ ping: 1 })' >/dev/null 2>&1; then
-    break
+  if ! sudo apt-get install -y mongodb-org; then
+    echo ""
+    echo "MongoDB failed to install on Ubuntu ${UBUNTU_VERSION:-$CODENAME}."
+    echo "The quickest way forward is to use a hosted database instead:"
+    echo "  DATABASE_URL='mongodb+srv://user:pass@cluster.mongodb.net/websyner' ./installer.sh"
+    echo ""
+    echo "That skips this step entirely. A free MongoDB Atlas cluster works fine."
+    exit 1
   fi
-  echo -n "."
-  sleep 1
-done
-echo ""
 
-if ! systemctl is-active --quiet mongod; then
-  echo "MongoDB failed to start. Check: sudo journalctl -u mongod -n 50"
-  exit 1
+  echo "==> Starting MongoDB service"
+  sudo mkdir -p /var/lib/mongodb /var/log/mongodb
+  sudo chown -R mongodb:mongodb /var/lib/mongodb /var/log/mongodb
+
+  sudo systemctl daemon-reload
+  sudo systemctl start mongod
+  sudo systemctl enable mongod
+
+  # Wait for mongod to accept connections rather than guessing with a fixed sleep.
+  echo -n "Waiting for MongoDB"
+  for _ in $(seq 1 30); do
+    if mongosh --quiet --eval 'db.runCommand({ ping: 1 })' >/dev/null 2>&1; then
+      break
+    fi
+    echo -n "."
+    sleep 1
+  done
+  echo ""
+
+  if ! systemctl is-active --quiet mongod; then
+    echo "MongoDB failed to start. Check: sudo journalctl -u mongod -n 50"
+    exit 1
+  fi
+
+  MONGO_STATUS="$(systemctl is-active mongod)"
+  echo "MongoDB service: $MONGO_STATUS"
+  echo "MongoDB listens on 127.0.0.1 only — do not open port 27017 to the internet."
 fi
-
-echo "MongoDB service: $(systemctl is-active mongod)"
-echo "MongoDB listens on 127.0.0.1 only — do not open port 27017 to the internet."
 
 # ----------------------------------------------------------------- swap ----
 #
@@ -231,7 +301,7 @@ JWT_ACCESS_SECRET="${JWT_ACCESS_SECRET:-$(gen_secret)}"
 JWT_REFRESH_SECRET="${JWT_REFRESH_SECRET:-$(gen_secret)}"
 REVALIDATE_SECRET="${REVALIDATE_SECRET:-$(gen_secret)}"
 
-DATABASE_URL="${DATABASE_URL:-mongodb://127.0.0.1:27017/websyner}"
+# DATABASE_URL was resolved earlier, before the MongoDB step.
 
 CLOUDINARY_CLOUD_NAME="${CLOUDINARY_CLOUD_NAME:-}"
 CLOUDINARY_API_KEY="${CLOUDINARY_API_KEY:-}"
@@ -335,7 +405,7 @@ echo " Installation complete"
 echo "============================================================"
 echo "Node:            $(node -v)"
 echo "npm:             $(npm -v)"
-echo "MongoDB service: $(systemctl is-active mongod)"
+echo "MongoDB:         ${MONGO_STATUS}"
 echo "Public address:  $BASE_URL"
 echo ""
 echo "Open these ports in the EC2 security group (inbound, source 0.0.0.0/0):"
